@@ -1,287 +1,299 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mini HTML IDE</title>
+    <title>Compact HTML Tester</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --bg-color: #f4f6f8; --pane-bg: #ffffff; --text-color: #212529;
-            --subtle-text-color: #6c757d; --border-color: #dee2e6; --primary-color: #0d6efd;
-            --info-color: #0dcaf0; --success-color: #198754; --danger-color: #dc3545;
-            --editor-bg: #fafbfc; --shadow-color: rgba(0, 0, 0, 0.075); --hover-bg: #e9ecef;
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f2f5;
         }
-        body.dark-mode {
-            --bg-color: #1a1d21; --pane-bg: #212529; --text-color: #e9ecef;
-            --subtle-text-color: #adb5bd; --border-color: #495057; --primary-color: #3b82f6;
-            --info-color: #22d3ee; --success-color: #4ade80; --danger-color: #f87171;
-            --editor-bg: #2b3035; --shadow-color: rgba(0, 0, 0, 0.2); --hover-bg: #343a40;
+        .main-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        html { font-family: system-ui, -apple-system, sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-color); padding: 1rem; }
-        .container { display: flex; flex-direction: column; gap: 1.5rem; }
+        .editor-section, .history-section {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            color: white;
+            transition: background-color 0.2s ease;
+        }
+        #pasteBtn { background-color: #007bff; }
+        #removeBtn { background-color: #dc3545; }
+        #testBtn { background-color: #28a745; }
+        #pasteBtn:hover { background-color: #0056b3; }
+        #removeBtn:hover { background-color: #c82333; }
+        #testBtn:hover { background-color: #218838; }
 
-        /* FILE MANAGER */
-        .file-manager-container {
-            background-color: var(--pane-bg); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 0.75rem; box-shadow: 0 4px 12px var(--shadow-color);
+        .history-list {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-        .fm-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
-        .path-display { font-family: monospace; color: var(--subtle-text-color); }
-        .fm-actions button { background: none; border: 1px solid var(--border-color); border-radius: 6px; padding: 0.4rem 0.8rem; cursor: pointer; }
-        #file-list { max-height: 40vh; overflow-y: auto; }
-        .item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; border-radius: 6px; }
-        .item:hover { background-color: var(--hover-bg); }
-        .item-name { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; flex-grow: 1; }
-        .item-actions { display: none; }
-        .item:hover .item-actions { display: flex; gap: 0.5rem; }
-        .action-btn { background: none; border: none; cursor: pointer; font-size: 1.1rem; color: var(--subtle-text-color); }
-        
-        /* EDITOR CONTROLS */
-        .editor-controls {
-            background-color: var(--pane-bg); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 1rem; box-shadow: 0 4px 12px var(--shadow-color);
-            display: flex; flex-direction: column; gap: 1rem;
+        .history-item {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e9ecef;
         }
-        .input-wrapper { display: flex; align-items: center; gap: 0.5rem; }
-        #htmlCode {
-            flex-grow: 1; border: 1px solid var(--border-color); padding: 0.5rem 0.75rem;
-            font-family: monospace; font-size: 1rem; background-color: var(--editor-bg);
-            color: var(--text-color); border-radius: 6px; resize: none; overflow: hidden; white-space: nowrap;
+        .history-item span {
+            cursor: pointer;
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #495057;
         }
-        .input-btn {
-            background: none; border: 1px solid var(--border-color); color: var(--text-color);
-            border-radius: 6px; padding: 0.5rem 0.75rem; cursor: pointer; font-weight: 500;
+        .history-buttons {
+            display: flex;
+            gap: 5px;
         }
-        #clearBtn { font-size: 1.2rem; padding: 0.25rem 0.75rem; color: var(--danger-color); }
-        .button-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .button-group button { padding: 0.5rem 1rem; border: none; border-radius: 6px; font-weight: 500; cursor: pointer; color: white; }
-        #testBtn { background-color: var(--primary-color); }
-        #saveBtn { background-color: var(--success-color); }
-        
-        /* FULL SCREEN EDITOR MODAL */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); display: none;
-            align-items: center; justify-content: center; z-index: 1000; padding: 1rem;
+        .history-buttons button {
+            flex: none;
+            padding: 8px 10px;
+            font-size: 12px;
         }
-        .modal-content {
-            background-color: var(--pane-bg); width: 100%; height: 100%;
-            display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem; border-radius: 8px;
-        }
-        .modal-content textarea {
-            flex-grow: 1; resize: none; width: 100%; font-size: 1rem; color: var(--text-color);
-            border: 1px solid var(--border-color); background-color: var(--editor-bg); padding: 1rem;
-        }
-        .modal-footer { text-align: right; }
+        .history-buttons .download-btn { background-color: #17a2b8; }
+        .history-buttons .edit-btn { background-color: #ffc107; }
+        .history-buttons .remove-btn { background-color: #dc3545; }
     </style>
 </head>
 <body>
-
-    <div class="container">
-        <div class="file-manager-container">
-            <div class="fm-toolbar">
-                <span class="path-display" id="currentPathDisplay">/</span>
-                <div class="fm-actions">
-                    <button id="newFolderBtn">📁+ नया फोल्डर</button>
-                    <button id="themeToggleBtn">☀️</button>
-                </div>
-            </div>
-            <div id="file-list"></div>
-        </div>
-
-        <div class="editor-controls">
-            <div class="input-wrapper">
-                <textarea id="htmlCode" rows="1" placeholder="कोड पेस्ट करें या फाइल एडिट करें..."></textarea>
-                <button id="clearBtn" class="input-btn" title="Clear Text">×</button>
-                <button id="editBtn" class="input-btn" title="Edit Full Screen">एडिट</button>
-            </div>
+    <div class="main-container">
+        <h1>HTML Tester</h1>
+        
+        <div class="editor-section">
+            <textarea id="htmlCode" placeholder="Paste your HTML code here..."></textarea>
             <div class="button-group">
-                <button id="testBtn">🚀 रन करें</button>
-                <button id="saveBtn">💾 सेव करें</button>
+                <button id="pasteBtn">Paste</button>
+                <button id="removeBtn">Remove</button>
+                <button id="testBtn">Test</button>
             </div>
         </div>
-    </div>
-    
-    <div id="editorModal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>Full Screen Editor</h2>
-            <textarea id="fullScreenEditor"></textarea>
-            <div class="modal-footer">
-                <button id="doneEditingBtn" class="button-group" style="background-color: var(--success-color); color: white;">Done</button>
-            </div>
+        
+        <div class="history-section">
+            <h2>Saved HTML History</h2>
+            <ul id="historyList" class="history-list">
+                </ul>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- STATE & DOM ELEMENTS ---
-            let state = { fileSystem: { type: 'folder', name: 'root', children: {} }, currentPath: 'root', openFilePath: null };
-            const elements = {
-                codeEditor: document.getElementById('htmlCode'),
-                fileList: document.getElementById('file-list'),
-                newFolderBtn: document.getElementById('newFolderBtn'),
-                currentPathDisplay: document.getElementById('currentPathDisplay'),
-                themeToggleBtn: document.getElementById('themeToggleBtn'),
-                clearBtn: document.getElementById('clearBtn'),
-                editBtn: document.getElementById('editBtn'),
-                testBtn: document.getElementById('testBtn'),
-                saveBtn: document.getElementById('saveBtn'),
-                editorModal: document.getElementById('editorModal'),
-                fullScreenEditor: document.getElementById('fullScreenEditor'),
-                doneEditingBtn: document.getElementById('doneEditingBtn'),
-            };
+        const htmlCodeTextarea = document.getElementById('htmlCode');
+        const pasteBtn = document.getElementById('pasteBtn');
+        const removeBtn = document.getElementById('removeBtn');
+        const testBtn = document.getElementById('testBtn');
+        const historyList = document.getElementById('historyList');
 
-            // --- STATE & UTILITY FUNCTIONS ---
-            const loadState = () => {
-                const savedState = localStorage.getItem('miniIdeState_v2');
-                if (savedState) state = JSON.parse(savedState);
-                if (!state.fileSystem) state.fileSystem = { type: 'folder', name: 'root', children: {} };
-            };
-            const saveState = () => localStorage.setItem('miniIdeState_v2', JSON.stringify(state));
-            const getObjectByPath = (path) => {
-                const parts = path.split('/').filter(p => p && p !== 'root');
-                let current = state.fileSystem;
-                for (const part of parts) {
-                    if (current && current.children && current.children[part]) { current = current.children[part]; } 
-                    else { return null; }
-                }
-                return current;
-            };
-            const previewCode = (code) => {
-                const newWindow = window.open();
-                newWindow.document.write(code);
-                newWindow.document.close();
-            };
-            
-            // --- EDITOR MODAL LOGIC ---
-            elements.editBtn.addEventListener('click', () => {
-                elements.fullScreenEditor.value = elements.codeEditor.value;
-                elements.editorModal.style.display = 'flex';
-                elements.fullScreenEditor.focus();
-            });
-            elements.doneEditingBtn.addEventListener('click', () => {
-                elements.codeEditor.value = elements.fullScreenEditor.value;
-                elements.editorModal.style.display = 'none';
-            });
-            elements.clearBtn.addEventListener('click', () => { elements.codeEditor.value = ''; state.openFilePath = null; });
-            
-            // --- FILE MANAGER RENDER ---
-            const renderFileManager = () => {
-                const currentFolder = getObjectByPath(state.currentPath);
-                elements.fileList.innerHTML = '';
+        // Function to extract title from HTML
+        function getTitleFromHtml(html) {
+            const match = html.match(/<title>(.*?)<\/title>/i);
+            return match && match[1] ? match[1] : 'Untitled';
+        }
+
+        // Function to load history from local storage
+        function loadHistory() {
+            const savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
+            historyList.innerHTML = '';
+            savedHistory.forEach((item, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('history-item');
                 
-                if (state.currentPath !== 'root') {
-                    const parentPath = state.currentPath.substring(0, state.currentPath.lastIndexOf('/'));
-                    const upEl = document.createElement('div');
-                    upEl.className = 'item';
-                    upEl.innerHTML = `<div class="item-name">📁 .. (ऊपर जाएं)</div>`;
-                    upEl.addEventListener('click', () => { state.currentPath = parentPath || 'root'; renderFileManager(); });
-                    elements.fileList.appendChild(upEl);
-                }
-
-                const items = Object.values(currentFolder.children).sort((a,b) => a.name.localeCompare(b.name)).sort((a,b) => a.type === 'folder' ? -1 : 1);
-
-                items.forEach(item => {
-                    const itemEl = document.createElement('div');
-                    itemEl.className = 'item';
-                    const itemPath = `${state.currentPath}/${item.name}`;
-                    const isFolder = item.type === 'folder';
-
-                    itemEl.innerHTML = `
-                        <div class="item-name" data-path="${itemPath}">${isFolder ? '📁' : '📄'} ${item.name}</div>
-                        <div class="item-actions">
-                            ${!isFolder ? '<button class="action-btn edit-file-btn" title="एडिट करें">✏️</button>' : ''}
-                            <button class="action-btn delete-item-btn" title="डिलीट करें">🗑️</button>
-                        </div>
-                    `;
-                    elements.fileList.appendChild(itemEl);
-                });
+                const codeSpan = document.createElement('span');
+                codeSpan.textContent = item.title;
                 
-                elements.currentPathDisplay.textContent = `/${state.currentPath.replace('root', '').replace(/\//g, ' / ')}`;
-            };
-            
-            // --- FILE MANAGER EVENT HANDLING ---
-            elements.fileList.addEventListener('click', (e) => {
-                const target = e.target;
-                const itemEl = target.closest('.item');
-                if (!itemEl) return;
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('history-buttons');
+
+                const editBtn = document.createElement('button');
+                editBtn.classList.add('edit-btn');
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.title = 'Edit HTML';
+                editBtn.onclick = () => {
+                    htmlCodeTextarea.value = item.code;
+                    // Scroll to the top of the page to see the editor
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+
+                const downloadBtn = document.createElement('button');
+                downloadBtn.classList.add('download-btn');
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+                downloadBtn.title = 'Download as index.html';
+                downloadBtn.onclick = () => downloadCode(item.code);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add('remove-btn');
+                removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                removeBtn.title = 'Remove from history';
+                removeBtn.onclick = () => {
+                    removeCode(index);
+                };
+
+                buttonContainer.appendChild(editBtn);
+                buttonContainer.appendChild(downloadBtn);
+                buttonContainer.appendChild(removeBtn);
+
+                listItem.appendChild(codeSpan);
+                listItem.appendChild(buttonContainer);
+                historyList.appendChild(listItem);
+            });
+        }
+
+        // Function to remove a code entry from history
+        function removeCode(indexToRemove) {
+            let savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
+            savedHistory.splice(indexToRemove, 1);
+            localStorage.setItem('htmlHistory', JSON.stringify(savedHistory));
+            loadHistory();
+        }
+
+        // Function to save code to local storage
+        function saveCode(html) {
+            const savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
+            const title = getTitleFromHtml(html);
+            savedHistory.unshift({ code: html, title: title }); 
+            localStorage.setItem('htmlHistory', JSON.stringify(savedHistory.slice(0, 10)));
+            loadHistory();
+        }
+        
+        // Function to download the code
+        function downloadCode(html) {
+            const a = document.createElement('a');
+            const file = new Blob([html], { type: 'text/html' });
+            a.href = URL.createObjectURL(file);
+            a.download = 'index.html';
+            a.click();
+        }
+
+        // Function to handle the test button logic
+        function testHtmlCode() {
+            const code = htmlCodeTextarea.value;
+            if (code) {
+                saveCode(code); // Save code to history
                 
-                const nameEl = itemEl.querySelector('.item-name');
-                const path = nameEl.dataset.path;
-                const item = getObjectByPath(path);
-
-                if (target.closest('.edit-file-btn')) {
-                    state.openFilePath = path;
-                    elements.codeEditor.value = item.content || '';
-                } else if (target.closest('.delete-item-btn')) {
-                    if (confirm(`'${item.name}' को डिलीट करना चाहते हैं?`)) {
-                        const parentFolder = getObjectByPath(path.substring(0, path.lastIndexOf('/')));
-                        delete parentFolder.children[item.name];
-                        if (state.openFilePath === path) { state.openFilePath = null; elements.codeEditor.value = ''; }
-                        saveState();
-                        renderFileManager();
-                    }
-                } else if (target.closest('.item-name')) {
-                    if (item.type === 'folder') {
-                        state.currentPath = path;
-                        renderFileManager();
-                    } else {
-                        previewCode(item.content);
-                    }
+                const newWindow = window.open('', '_blank', 'width=800,height=600');
+                if (newWindow) {
+                    newWindow.document.open();
+                    newWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Preview</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    margin: 0;
+                                }
+                                #toggleViewBtn {
+                                    position: fixed;
+                                    bottom: 20px;
+                                    right: 20px;
+                                    padding: 10px 15px;
+                                    border: none;
+                                    border-radius: 5px;
+                                    background-color: #007bff;
+                                    color: white;
+                                    cursor: pointer;
+                                    z-index: 1000;
+                                }
+                                body.desktop-view {
+                                    width: 1024px;
+                                    margin: 0 auto;
+                                    border: 1px solid #ccc;
+                                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${code}
+                            <button id="toggleViewBtn">Switch to Desktop View</button>
+                            <script>
+                                const toggleViewBtn = document.getElementById('toggleViewBtn');
+                                toggleViewBtn.addEventListener('click', () => {
+                                    document.body.classList.toggle('desktop-view');
+                                    if (document.body.classList.contains('desktop-view')) {
+                                        toggleViewBtn.textContent = 'Switch to Mobile View';
+                                    } else {
+                                        toggleViewBtn.textContent = 'Switch to Desktop View';
+                                    }
+                                });
+                            <\/script>
+                        </body>
+                        </html>
+                    `);
+                    newWindow.document.close();
                 }
-            });
-            
-            elements.newFolderBtn.addEventListener('click', () => {
-                const folderName = prompt("नए फोल्डर का नाम बताएं:");
-                if (folderName && folderName.trim()) {
-                    const currentFolder = getObjectByPath(state.currentPath);
-                    if (currentFolder.children[folderName]) {
-                        alert("इस नाम का फोल्डर पहले से मौजूद है।");
-                        return;
-                    }
-                    currentFolder.children[folderName] = { type: 'folder', name: folderName, children: {} };
-                    saveState();
-                    renderFileManager();
-                }
-            });
-            
-            // --- MAIN ACTION BUTTONS ---
-            elements.testBtn.addEventListener('click', () => previewCode(elements.codeEditor.value));
-            
-            elements.saveBtn.addEventListener('click', () => {
-                let pathOfFile = state.openFilePath;
-                const currentFolder = getObjectByPath(state.currentPath);
+            }
+        }
 
-                if (pathOfFile) {
-                    const fileToSave = getObjectByPath(pathOfFile);
-                    fileToSave.content = elements.codeEditor.value;
-                    alert(`'${fileToSave.name}' अपडेट हो गयी।`);
-                } else {
-                    const fileName = prompt("फाइल का नाम बताएं (जैसे: index.html):", "index.html");
-                    if (!fileName || !fileName.trim()) return;
+        // Event Listeners
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                htmlCodeTextarea.value = text;
+            } catch (err) {
+                console.error('Failed to read clipboard contents: ', err);
+            }
+        });
 
-                    if (currentFolder.children[fileName]) {
-                        if (!confirm("यह फाइल पहले से है। क्या आप इसे ओवरराइट करना चाहते हैं?")) return;
-                    }
-                    
-                    currentFolder.children[fileName] = { type: 'file', name: fileName, content: elements.codeEditor.value };
-                    state.openFilePath = `${state.currentPath}/${fileName}`;
-                    alert(`'${fileName}' सेव हो गयी।`);
-                }
-                saveState();
-                renderFileManager();
-            });
+        removeBtn.addEventListener('click', () => {
+            htmlCodeTextarea.value = '';
+        });
 
-            elements.themeToggleBtn.addEventListener('click', () => {
-                document.body.classList.toggle('dark-mode');
-                elements.themeToggleBtn.textContent = document.body.classList.contains('dark-mode') ? '🌙' : '☀️';
-            });
-            
-            // --- INITIALIZATION ---
-            loadState();
-            renderFileManager();
+        testBtn.addEventListener('click', testHtmlCode);
+
+        // Load history and last saved code on page load
+        window.addEventListener('load', () => {
+            loadHistory();
+            const lastCode = JSON.parse(localStorage.getItem('htmlHistory'));
+            if (lastCode && lastCode[0]) {
+                htmlCodeTextarea.value = lastCode[0].code;
+            }
         });
     </script>
 </body>
