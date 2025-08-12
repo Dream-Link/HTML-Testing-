@@ -3,946 +3,2601 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Tester - Mobile</title>
+    <title>दुकान मैनेजमेंट ऐप</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        .container {
-            width: 100vw;
-            height: 100vh;
-            background: white;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px 8px;
-            text-align: center;
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            color: #6c757d;
+            font-family: 'Inter', 'Noto Sans Devanagari', sans-serif;
             transition: all 0.3s ease;
         }
-
-        .tab.active {
-            background: white;
-            color: #4facfe;
-            border-bottom: 2px solid #4facfe;
-        }
-
-        .tab-content {
+        
+        .print-only {
             display: none;
-            padding: 15px;
-            flex: 1;
-            overflow: hidden;
         }
-
-        .tab-content.active {
-            display: flex;
-            flex-direction: column;
+        
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+            }
         }
-
-        .live-mode {
-            display: flex !important;
-            flex-direction: row;
-            gap: 10px;
-            height: calc(100vh - 200px);
+        
+        /* Modern Card Styling */
+        .modern-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
         }
-
-        .editor-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        
+        .modern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
-
-        .preview-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        
+        /* Android Style Icons */
+        .android-icon {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+            transition: all 0.2s ease;
         }
-
-        .editor-container {
-            position: relative;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+        
+        .android-icon:hover {
+            transform: scale(1.1);
         }
-
-        .code-editor {
-            position: relative;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .highlighted-code {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            background: #1e1e1e;
-            color: #d4d4d4;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            overflow: auto;
-            pointer-events: none;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            z-index: 1;
-        }
-
-        .html-tag { color: #569cd6; }
-        .html-attribute { color: #92c5f8; }
-        .html-string { color: #ce9178; }
-        .html-comment { color: #6a9955; font-style: italic; opacity: 0.7; font-size: 0.9em; }
-        .html-doctype { color: #c586c0; }
-        .css-property { color: #9cdcfe; }
-        .css-value { color: #ce9178; }
-        .css-selector { color: #d7ba7d; }
-        .js-keyword { color: #569cd6; }
-        .js-string { color: #ce9178; }
-        .js-function { color: #dcdcaa; }
-        .guide-hint { 
-            color: #6a9955; 
-            opacity: 0.7; 
-            font-size: 0.8em; 
-            font-style: italic; 
-            margin-left: 15px;
-            background: rgba(106, 153, 85, 0.1);
-            padding: 2px 6px;
-            border-radius: 3px;
-            border-left: 2px solid #6a9955;
-        }
-
-        #htmlEditor {
-            width: 100%;
-            flex: 1;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 12px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            resize: none;
-            outline: none;
-            transition: border-color 0.3s ease;
-            background: transparent;
-            color: transparent;
-            line-height: 1.5;
-            z-index: 2;
-            caret-color: #4facfe;
-        }
-
-        #htmlEditor:focus {
-            border-color: #4facfe;
-            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
-        }
-
-        .preview-frame {
-            width: 100%;
-            flex: 1;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            background: white;
-        }
-
-        .controls {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 10px 16px;
+        
+        /* Professional Button Styling */
+        .pro-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
+            border-radius: 12px;
+            color: white;
             font-weight: 500;
             transition: all 0.3s ease;
-            flex: 1;
-            min-width: 80px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        
+        .pro-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        
+        /* VIP Theme Styles */
+        .vip-gold {
+            background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+            color: #1a1a1a;
+        }
+        
+        .vip-gold .bg-white {
+            background: linear-gradient(135deg, #fff9e6 0%, #ffeaa7 100%) !important;
+            border: 1px solid #ffd700;
+        }
+        
+        .vip-gold .modern-card {
+            background: rgba(255, 249, 230, 0.95);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 8px 32px rgba(255, 215, 0, 0.2);
+        }
+        
+        .vip-platinum {
+            background: linear-gradient(135deg, #e8e8e8 0%, #c0c0c0 100%);
+            color: #1a1a1a;
+        }
+        
+        .vip-platinum .bg-white {
+            background: linear-gradient(135deg, #f8f8f8 0%, #e8e8e8 100%) !important;
+            border: 1px solid #c0c0c0;
+        }
+        
+        .vip-platinum .modern-card {
+            background: rgba(248, 248, 248, 0.95);
+            border: 1px solid rgba(192, 192, 192, 0.3);
+            box-shadow: 0 8px 32px rgba(192, 192, 192, 0.2);
+        }
+        
+        .vip-diamond {
+            background: linear-gradient(135deg, #b8f2ff 0%, #74b9ff 100%);
+            color: #1a1a1a;
+        }
+        
+        .vip-diamond .bg-white {
+            background: linear-gradient(135deg, #f0f9ff 0%, #dbeafe 100%) !important;
+            border: 1px solid #74b9ff;
+        }
+        
+        .vip-diamond .modern-card {
+            background: rgba(240, 249, 255, 0.95);
+            border: 1px solid rgba(116, 185, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(116, 185, 255, 0.2);
+        }
+        
+        .vip-emerald {
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
             color: white;
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        
+        .vip-emerald .bg-white {
+            background: linear-gradient(135deg, #e8f8f5 0%, #d1f2eb 100%) !important;
+            border: 1px solid #00b894;
+            color: #1a1a1a !important;
         }
-
-        .btn-success {
-            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+        
+        .vip-emerald .modern-card {
+            background: rgba(232, 248, 245, 0.95);
+            border: 1px solid rgba(0, 184, 148, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 184, 148, 0.2);
+        }
+        
+        .vip-ruby {
+            background: linear-gradient(135deg, #e17055 0%, #d63031 100%);
             color: white;
         }
-
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+        
+        .vip-ruby .bg-white {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%) !important;
+            border: 1px solid #e17055;
+            color: #1a1a1a !important;
         }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        
+        .vip-ruby .modern-card {
+            background: rgba(255, 234, 167, 0.95);
+            border: 1px solid rgba(225, 112, 85, 0.3);
+            box-shadow: 0 8px 32px rgba(225, 112, 85, 0.2);
+        }
+        
+        .vip-royal {
+            background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
             color: white;
         }
-
-        .btn-warning:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        
+        .vip-royal .bg-white {
+            background: linear-gradient(135deg, #f8f7ff 0%, #e8e4ff 100%) !important;
+            border: 1px solid #6c5ce7;
+            color: #1a1a1a !important;
         }
-
-        .saved-files {
-            max-height: 300px;
-            overflow-y: auto;
+        
+        .vip-royal .modern-card {
+            background: rgba(248, 247, 255, 0.95);
+            border: 1px solid rgba(108, 92, 231, 0.3);
+            box-shadow: 0 8px 32px rgba(108, 92, 231, 0.2);
         }
-
-        .file-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px;
+        
+        /* Dark Theme */
+        .dark {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
+            color: #ffffff;
+        }
+        
+        .dark .bg-white {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%) !important;
+            border: 1px solid #4a5568;
+        }
+        
+        .dark .modern-card {
+            background: rgba(45, 55, 72, 0.95);
+            border: 1px solid rgba(74, 85, 104, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dark .bg-gray-50 {
+            background: linear-gradient(135deg, #374151 0%, #4b5563 100%) !important;
+        }
+        
+        .dark .bg-gray-100 {
+            background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%) !important;
+        }
+        
+        .dark .text-gray-900 {
+            color: #ffffff !important;
+        }
+        
+        .dark .text-gray-700 {
+            color: #d1d5db !important;
+        }
+        
+        .dark .text-gray-600 {
+            color: #9ca3af !important;
+        }
+        
+        .dark .border-gray-300 {
+            border-color: #6b7280 !important;
+        }
+        
+        .dark .border-gray-200 {
+            border-color: #4b5563 !important;
+        }
+        
+        .customer-menu-btn {
+            display: none;
+        }
+        
+        /* Professional List Items */
+        .pro-list-item {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            transition: all 0.3s ease;
             margin-bottom: 8px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 4px solid #4facfe;
         }
-
-        .file-name {
-            font-weight: 500;
-            color: #495057;
-            flex: 1;
-            margin-right: 10px;
+        
+        .pro-list-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
-
-        .file-actions {
-            display: flex;
-            gap: 5px;
+        
+        /* Modern Input Styling */
+        .modern-input {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
         }
-
-        .btn-sm {
-            padding: 6px 10px;
-            font-size: 0.8rem;
-            min-width: auto;
+        
+        .modern-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
         }
-
-        .empty-state {
-            text-align: center;
-            color: #6c757d;
-            padding: 40px 20px;
+        
+        /* Calculator Modern Style */
+        .calc-modern {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
         }
-
-        .empty-state i {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #28a745;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .toast.show {
-            opacity: 1;
-        }
-
-        .code-guide {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
-        }
-
-        .code-guide h4 {
-            margin: 0 0 8px 0;
-            color: #495057;
-            font-size: 1rem;
-        }
-
-        .guide-items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .guide-item {
-            display: flex;
-            align-items: center;
-            font-size: 0.85rem;
-            color: #6c757d;
-            background: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
-
-        .color-box {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-            margin-right: 6px;
-            border: 1px solid rgba(0,0,0,0.1);
-        }
-
-        .html-tag-color { background: #569cd6; }
-        .html-attr-color { background: #92c5f8; }
-        .html-string-color { background: #ce9178; }
-        .css-prop-color { background: #9cdcfe; }
-        .comment-color { background: #6a9955; }
-
-        @media (max-width: 480px) {
-            .controls {
-                flex-direction: column;
-            }
-            
-            .btn {
-                flex: none;
-            }
-            
-            .file-actions {
-                flex-direction: column;
-                gap: 3px;
-            }
-
-            .guide-items {
-                flex-direction: column;
-                gap: 4px;
-            }
-
-            .guide-item {
-                font-size: 0.8rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📱 HTML Tester</h1>
-        </div>
-
-        <div class="tabs">
-            <button class="tab active" onclick="switchTab('editor')">✏️ Editor</button>
-            <button class="tab" onclick="switchTab('preview')">👁️ Preview</button>
-            <button class="tab" onclick="switchTab('saved')">💾 Saved</button>
-        </div>
-
-        <div id="editor" class="tab-content active">
-            <div class="controls">
-                <button class="btn btn-primary" onclick="toggleLiveMode()">👁️ Live Mode</button>
-                <button class="btn btn-success" onclick="saveFile()">💾 Save</button>
-                <button class="btn btn-warning" onclick="clearEditor()">🗑️ Clear</button>
-            </div>
-            <div class="editor-panel">
-
-                <div class="editor-container">
-                    <div class="code-editor">
-                        <div id="highlightedCode" class="highlighted-code"></div>
-                        <textarea id="htmlEditor" placeholder="यहाँ अपना HTML code paste करें..."><!DOCTYPE html>
-<html>
-<head>
-    <title>Test Page</title>
-    <style>
-        body { 
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
-            color: white;
-        }
-        .container {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
-        h1 {
-            font-size: 2em;
-        }
-        p {
-            font-size: 1.2em;
-            margin: 15px 0;
-        }
-        button {
-            padding: 10px 20px;
-            font-size: 1.1em;
-            background: #ff6b6b;
-            color: white;
+        
+        .calc-btn-modern {
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.2s ease;
             border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            backdrop-filter: blur(8px);
         }
-        button:hover {
-            background: #ff5252;
+        
+        .calc-btn-modern:hover {
+            transform: scale(1.05);
+        }
+        
+        .calc-btn-modern:active {
+            transform: scale(0.95);
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Hello World! 🌍</h1>
-        <p>यह एक test HTML page है।</p>
-        <button onclick="alert('Button clicked!')">Click Me</button>
-    </div>
-</body>
-</html></textarea>
+<body class="bg-gray-50 transition-colors duration-300">
+    <div class="min-h-screen">
+        <!-- Header -->
+        <header class="bg-white shadow-sm border-b border-gray-200 no-print">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between items-center h-16">
+                    <h1 id="shopTitle" class="text-xl font-bold text-gray-900 cursor-pointer hover:text-blue-600" onclick="editShopTitle()">दुकान मैनेजमेंट</h1>
+                    
+                    <!-- Menu Button -->
+                    <div class="relative">
+                        <button id="menuBtn" class="p-2 rounded-md hover:bg-gray-100 focus:outline-none">
+                            <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zM12 13a1 1 0 110-2 1 1 0 010 2zM12 20a1 1 0 110-2 1 1 0 010 2z"></path>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Menu -->
+                        <div id="menuDropdown" class="hidden absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                            <div class="py-1">
+                                <button id="printAllItems" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    📋 सभी वस्तुओं की लिस्ट प्रिंट करें
+                                </button>
+                                <button id="printBahikhata" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    📖 बहीखाता प्रिंट करें (PDF)
+                                </button>
+                                <button id="printDetailedBahikhata" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    📝 विस्तृत बहीखाता प्रिंट करें (PDF)
+                                </button>
+                                <button id="editTitle" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                    ✏️ दुकान का नाम बदलें
+                                </button>
+                                <hr class="my-1">
+                                <div class="px-4 py-2">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">थीम चुनें:</label>
+                                    <select id="themeSelect" class="w-full p-2 border border-gray-300 rounded-md text-sm">
+                                        <option value="light">💡 Light</option>
+                                        <option value="dark">🌙 Dark</option>
+                                        <option value="vip-gold">👑 VIP Gold</option>
+                                        <option value="vip-platinum">💎 VIP Platinum</option>
+                                        <option value="vip-diamond">💠 VIP Diamond</option>
+                                        <option value="vip-emerald">🟢 VIP Emerald</option>
+                                        <option value="vip-ruby">🔴 VIP Ruby</option>
+                                        <option value="vip-royal">🟣 VIP Royal</option>
+                                        <option value="auto">🤖 Auto (डिवाइस के अनुसार)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="preview-panel" id="livePreviewPanel" style="display: none;">
-                <h4 style="margin: 0 0 10px 0; color: #495057;">🔴 Live Preview</h4>
-                <iframe id="livePreviewFrame" class="preview-frame"></iframe>
-            </div>
-        </div>
+        </header>
 
-        <div id="preview" class="tab-content">
-            <div class="controls">
-                <button class="btn btn-primary" onclick="updatePreview()">🔄 Refresh</button>
-                <button class="btn btn-success" onclick="downloadCurrentHTML()">⬇️ Download</button>
-            </div>
-            <iframe id="previewFrame" class="preview-frame"></iframe>
-        </div>
-
-        <div id="saved" class="tab-content">
-            <div class="controls">
-                <button class="btn btn-warning" onclick="clearAllSaved()">🗑️ Clear All</button>
-            </div>
-            <div id="savedFilesList" class="saved-files">
-                <div class="empty-state">
-                    <div>📁</div>
-                    <p>कोई saved files नहीं हैं</p>
+        <!-- Navigation Tabs -->
+        <nav class="bg-white border-b border-gray-200 no-print">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex">
+                    <button id="homeTab" class="tab-btn flex-1 text-center border-b-2 border-blue-500 text-blue-600 py-4 px-1 text-sm font-medium">
+                        🏠 होम
+                    </button>
+                    <button id="accountTab" class="tab-btn flex-1 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                        📖 बहीखाता
+                    </button>
+                    <button id="calculatorTab" class="tab-btn flex-1 text-center border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 py-4 px-1 text-sm font-medium">
+                        🧮 कैलकुलेटर
+                    </button>
                 </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            
+            <!-- Home Mode -->
+            <div id="homeMode" class="tab-content">
+                <div class="modern-card p-3 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+                        <h2 class="text-lg font-semibold text-gray-900">वस्तुओं की दर सूची</h2>
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <!-- Search Icon -->
+                            <button id="searchItemBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="खोजें">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </button>
+                            <!-- Sort Order Icon -->
+                            <div class="relative">
+                                <button id="sortItemBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="क्रम बदलें">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+                                    </svg>
+                                </button>
+                                <select id="itemSortOrder" class="hidden absolute right-0 mt-1 p-2 border border-gray-300 rounded-md text-sm bg-white shadow-lg z-10">
+                                    <option value="name">नाम के अनुसार</option>
+                                    <option value="date">दिनांक के अनुसार</option>
+                                </select>
+                            </div>
+                            <!-- Add Item Icon -->
+                            <button id="addItemBtn" class="p-2 rounded-md bg-blue-500 hover:bg-blue-600 text-white" title="वस्तु जोड़ें">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Input (Hidden by default) -->
+                    <div id="itemSearchContainer" class="hidden mb-4">
+                        <input type="text" id="itemSearchInput" class="modern-input w-full p-3 text-base" placeholder="वस्तु का नाम खोजें...">
+                    </div>
+                    
+                    <div id="itemsList" class="space-y-3">
+                        <!-- Items will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Mode -->
+            <div id="accountMode" class="tab-content hidden">
+                <div class="modern-card p-3 sm:p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
+                        <h2 class="text-lg font-semibold text-gray-900">बहीखाता</h2>
+                        <div class="flex items-center gap-2 sm:gap-3">
+                            <!-- Search Icon -->
+                            <button id="searchCustomerBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="खोजें">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                            </button>
+                            <!-- Sort Order Icon -->
+                            <div class="relative">
+                                <button id="sortCustomerBtn" class="p-2 rounded-md hover:bg-gray-100 text-gray-600" title="क्रम बदलें">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12"></path>
+                                    </svg>
+                                </button>
+                                <select id="customerSortOrder" class="hidden absolute right-0 mt-1 p-2 border border-gray-300 rounded-md text-sm bg-white shadow-lg z-10">
+                                    <option value="recent">नवीनतम पहले</option>
+                                    <option value="name">नाम के अनुसार</option>
+                                </select>
+                            </div>
+
+                            <!-- Add Customer Icon -->
+                            <button id="addCustomerBtn" class="p-2 rounded-md bg-green-500 hover:bg-green-600 text-white" title="ग्राहक जोड़ें">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Input (Hidden by default) -->
+                    <div id="customerSearchContainer" class="hidden mb-4">
+                        <input type="text" id="customerSearchInput" class="modern-input w-full p-3 text-base" placeholder="ग्राहक का नाम खोजें...">
+                    </div>
+                    
+                    <div id="customersList" class="space-y-4">
+                        <!-- Customers will be loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calculator Mode -->
+            <div id="calculatorMode" class="tab-content hidden">
+                <div class="calc-modern p-3 sm:p-6 max-w-sm sm:max-w-md mx-auto">
+                    <div class="calculator">
+                        <div class="mb-3 sm:mb-4">
+                            <div id="calcSteps" class="mb-2 p-2 sm:p-3 bg-blue-50 border border-blue-200 rounded-md min-h-[50px] sm:min-h-[60px]">
+                                <div class="text-xs sm:text-sm text-blue-600 font-medium mb-1">गणना के चरण:</div>
+                                <div id="calcStepsContent" class="text-sm sm:text-lg font-bold text-blue-800 break-all">0</div>
+                            </div>
+                            <input id="calcDisplay" type="text" class="w-full p-3 sm:p-4 text-right text-lg sm:text-2xl font-mono bg-gray-100 border border-gray-300 rounded-md" oninput="handleDisplayInput()" onkeydown="handleKeyDown(event)">
+                        </div>
+                        <div class="grid grid-cols-4 gap-2 sm:gap-3">
+                            <button class="calc-btn-modern bg-red-500 hover:bg-red-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="clearCalculator()">C</button>
+                            <button class="calc-btn-modern bg-orange-500 hover:bg-orange-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="deleteLast()">⌫</button>
+                            <button class="calc-btn-modern bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('/')">/</button>
+                            <button class="calc-btn-modern bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('*')">×</button>
+                            
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('7')">7</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('8')">8</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('9')">9</button>
+                            <button class="calc-btn-modern bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('-')">-</button>
+                            
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('4')">4</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('5')">5</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('6')">6</button>
+                            <button class="calc-btn-modern bg-green-500 hover:bg-green-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold row-span-2" onclick="appendToDisplay('+')">+</button>
+                            
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('1')">1</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('2')">2</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('3')">3</button>
+                            
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold col-span-2" onclick="appendToDisplay('0')">0</button>
+                            <button class="calc-btn-modern bg-gray-200 hover:bg-gray-300 text-gray-900 p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="appendToDisplay('.')">.</button>
+                            <button class="calc-btn-modern bg-blue-500 hover:bg-blue-600 text-white p-3 sm:p-4 text-lg sm:text-xl font-semibold" onclick="calculate()">=</button>
+                        </div>
+                        
+                        <div class="mt-3 sm:mt-4 flex gap-2">
+                            <button id="calcHistoryBtn" class="p-2 sm:p-3 bg-gray-500 hover:bg-gray-600 text-white rounded-md" title="हिस्ट्री देखें" onclick="openCalcHistory()">
+                                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </button>
+                            <button id="addToBahikhataBtn" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white p-2 sm:p-3 rounded-md text-sm sm:text-base font-semibold" onclick="openCalcToBahikhata()">
+                                📖 बहीखाता में जोड़ें
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Item Modal -->
+    <div id="addItemModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print p-2 sm:p-4">
+        <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-lg mx-2 sm:mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 id="itemModalTitle" class="text-lg font-semibold mb-4">नई वस्तु जोड़ें</h3>
+            <form id="addItemForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">वस्तु का नाम</label>
+                    <input type="text" id="itemName" class="modern-input w-full p-3 text-base" required>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">दर और प्रकार</label>
+                    <div id="priceVariants" class="space-y-3">
+                        <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center price-variant">
+                            <input type="number" class="w-full sm:w-32 p-2 border border-gray-300 rounded-md variant-price text-base" placeholder="दर (₹)" required>
+                            <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type text-base">
+                                <option value="प्रति किलो">प्रति किलो</option>
+                                <option value="प्रति नग">प्रति नग</option>
+                                <option value="प्रति दर्जन">प्रति दर्जन</option>
+                                <option value="प्रति पैकेट">प्रति पैकेट</option>
+                                <option value="प्रति लीटर">प्रति लीटर</option>
+                                <option value="प्रति मीटर">प्रति मीटर</option>
+                                <option value="अन्य">अन्य</option>
+                            </select>
+                            <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md custom-type hidden text-base" placeholder="कस्टम प्रकार">
+                            <button type="button" class="text-red-500 hover:text-red-700 remove-variant p-2 sm:p-0" onclick="removeVariant(this)">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" id="addVariant" class="mt-2 text-blue-500 hover:text-blue-700 text-sm">+ नया प्रकार जोड़ें</button>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-md text-base">सेव करें</button>
+                    <button type="button" id="cancelAddItem" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-md text-base">रद्द करें</button>
+                    <button type="button" id="deleteItem" class="hidden bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-md text-base" onclick="deleteItem()">हटाएं</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Customer Modal -->
+    <div id="addCustomerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print p-2 sm:p-4">
+        <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-2 sm:mx-4">
+            <h3 class="text-lg font-semibold mb-4">नया ग्राहक जोड़ें</h3>
+            <form id="addCustomerForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक का नाम</label>
+                    <input type="text" id="customerName" class="modern-input w-full p-3 text-base" required>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-md text-base">जोड़ें</button>
+                    <button type="button" id="cancelAddCustomer" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-md text-base">रद्द करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Multiple Transactions Modal -->
+    <div id="addTransactionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+            <h3 class="text-lg font-semibold mb-4">सामान जोड़ें</h3>
+            <form id="addTransactionForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">लेने वाले का नाम (वैकल्पिक)</label>
+                    <input type="text" id="buyerName" class="w-full p-3 border border-gray-300 rounded-md" placeholder="डिफ़ॉल्ट: खाता धारक का नाम">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">सामान की सूची</label>
+                    <div id="transactionItems" class="space-y-3">
+                        <!-- Transaction items will be added here -->
+                    </div>
+                </div>
+                
+                <div class="mb-4 p-3 bg-gray-50 rounded-md">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">कुल राशि:</span>
+                        <span id="totalAmount" class="text-lg font-bold text-green-600">₹0.00</span>
+                    </div>
+                </div>
+                
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">जोड़ें</button>
+                    <button type="button" id="cancelAddTransaction" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Calculator to Bahikhata Modal -->
+    <div id="calcToBahikhataModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print p-2 sm:p-4">
+        <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-2 sm:mx-4">
+            <h3 class="text-lg font-semibold mb-4">बहीखाता में जोड़ें</h3>
+            <form id="calcToBahikhataForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक चुनें या नाम लिखें</label>
+                    <div class="relative">
+                        <input type="text" id="calcCustomerInput" class="w-full p-3 border border-gray-300 rounded-md text-base" placeholder="ग्राहक का नाम लिखें या चुनें" required>
+                        <div id="calcCustomerDropdown" class="hidden absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-40 overflow-y-auto">
+                            <!-- Customer options will be populated here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">राशि</label>
+                    <input type="number" id="calcAmount" class="w-full p-3 border border-gray-300 rounded-md text-base" step="0.01" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">सामान का विवरण</label>
+                    <textarea id="calcItemDescription" class="w-full p-3 border border-gray-300 rounded-md text-base" rows="3" placeholder="सामान का विवरण लिखें..."></textarea>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-md text-base">जोड़ें</button>
+                    <button type="button" id="cancelCalcToBahikhata" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-md text-base">रद्द करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Send Notice Modal -->
+    <div id="sendNoticeModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
+            <h3 class="text-lg font-semibold mb-4">पेमेंट नोटिस</h3>
+            <div id="noticeContent" class="border border-gray-300 rounded-md p-4 mb-4 bg-gray-50">
+                <!-- Notice content will be generated here -->
+            </div>
+            <div class="flex gap-3">
+                <button id="printNotice" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">🖨️ प्रिंट करें</button>
+                <button id="saveNoticeImage" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md">💾 इमेज सेव करें</button>
+                <button id="cancelNotice" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
             </div>
         </div>
     </div>
 
-    <div id="toast" class="toast"></div>
+    <!-- Calculator History Modal -->
+    <div id="calcHistoryModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4 max-h-[80vh] overflow-y-auto">
+            <h3 class="text-lg font-semibold mb-4">कैलकुलेटर हिस्ट्री</h3>
+            <div id="calcHistoryContent" class="space-y-3 mb-4">
+                <!-- History items will be loaded here -->
+            </div>
+            <div class="flex gap-3">
+                <button id="clearCalcHistory" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-md">हिस्ट्री साफ़ करें</button>
+                <button id="closeCalcHistory" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">बंद करें</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Payment Modal -->
+    <div id="addPaymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print p-2 sm:p-4">
+        <div class="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md mx-2 sm:mx-4">
+            <h3 class="text-lg font-semibold mb-4">जमा राशि</h3>
+            <form id="addPaymentForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ग्राहक का नाम</label>
+                    <input type="text" id="paymentCustomerName" class="w-full p-3 border border-gray-300 rounded-md bg-gray-100 text-base" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">कुल बकाया राशि</label>
+                    <input type="text" id="totalDueAmount" class="w-full p-3 border border-gray-300 rounded-md bg-gray-100 text-base" readonly>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">जमा करने वाली राशि</label>
+                    <input type="number" id="paymentAmount" class="w-full p-3 border border-gray-300 rounded-md text-base" step="0.01" placeholder="राशि दर्ज करें" required>
+                </div>
+                <div class="mb-4">
+                    <button type="button" id="payFullAmount" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 px-4 rounded-md mb-2 text-base">
+                        पूरी राशि जमा करें
+                    </button>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-md text-base">जमा करें</button>
+                    <button type="button" id="cancelAddPayment" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 px-4 rounded-md text-base">रद्द करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Shop Title Modal -->
+    <div id="editTitleModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 no-print">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">दुकान का नाम बदलें</h3>
+            <form id="editTitleForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">नया नाम</label>
+                    <input type="text" id="newShopTitle" class="w-full p-3 border border-gray-300 rounded-md" required>
+                </div>
+                <div class="flex gap-3">
+                    <button type="submit" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md">सेव करें</button>
+                    <button type="button" id="cancelEditTitle" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded-md">रद्द करें</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script>
-        let savedFiles = JSON.parse(localStorage.getItem('htmlTesterFiles') || '[]');
-        let currentFileName = '';
-        let isLiveMode = false;
+        // Data Storage
+        let items = JSON.parse(localStorage.getItem('shopItems') || '[]');
+        let customers = JSON.parse(localStorage.getItem('shopCustomers') || '[]');
+        let calcHistory = JSON.parse(localStorage.getItem('calcHistory') || '[]');
+        let currentCustomerId = null;
+        let editingItemIndex = null;
+        let shopTitle = localStorage.getItem('shopTitle') || 'दुकान मैनेजमेंट';
+        let filteredItems = [];
+        let filteredCustomers = [];
 
-        function highlightSyntax(code) {
-            let highlighted = code
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/(&lt;\/?)([\w-]+)/g, '<span class="html-tag">$1$2</span>')
-                .replace(/([\w-]+)=("[^"]*")/g, '<span class="html-attribute">$1</span>=<span class="html-string">$2</span>')
-                .replace(/(&lt;!--.*?--&gt;)/g, '<span class="html-comment">$1</span>')
-                .replace(/(&lt;!DOCTYPE[^&]*&gt;)/g, '<span class="html-doctype">$1</span>')
-                .replace(/(style|color|background|font-family|padding|margin|width|height|display|position|border|border-radius):/g, '<span class="css-property">$1</span>:')
-                .replace(/:\s*([^;}\n]+)/g, ': <span class="css-value">$1</span>')
-                .replace(/(function|var|let|const|if|else|for|while|return)/g, '<span class="js-keyword">$1</span>')
-                .replace(/(onclick|onload|addEventListener)/g, '<span class="js-function">$1</span>');
+        // Shop Title Management
+        function initShopTitle() {
+            document.getElementById('shopTitle').textContent = shopTitle;
+        }
 
-            // Add line-ending Hindi guides
-            const lines = highlighted.split('\n');
-            highlighted = lines.map(line => {
-                let guidedLine = line;
-                
-                // HTML Tags
-                if (line.includes('&lt;!DOCTYPE html&gt;')) {
-                    guidedLine += '<span class="guide-hint">← HTML5 दस्तावेज़ की घोषणा - ब्राउज़र को बताता है कि यह HTML5 है</span>';
-                } else if (line.includes('&lt;html&gt;')) {
-                    guidedLine += '<span class="guide-hint">← मुख्य HTML टैग - पूरा webpage इसके अंदर होता है</span>';
-                } else if (line.includes('&lt;head&gt;')) {
-                    guidedLine += '<span class="guide-hint">← Head सेक्शन - पेज की जानकारी, title, CSS यहाँ होता है</span>';
-                } else if (line.includes('&lt;title&gt;')) {
-                    guidedLine += '<span class="guide-hint">← पेज का शीर्षक - ब्राउज़र टैब में दिखता है</span>';
-                } else if (line.includes('&lt;style&gt;')) {
-                    guidedLine += '<span class="guide-hint">← CSS स्टाइल शुरू - यहाँ design और colors लिखते हैं</span>';
-                } else if (line.includes('&lt;/style&gt;')) {
-                    guidedLine += '<span class="guide-hint">← CSS स्टाइल खत्म</span>';
-                } else if (line.includes('&lt;body&gt;')) {
-                    guidedLine += '<span class="guide-hint">← Body सेक्शन - पेज का मुख्य भाग, यहाँ content दिखता है</span>';
-                } else if (line.includes('&lt;h1&gt;')) {
-                    guidedLine += '<span class="guide-hint">← मुख्य शीर्षक (H1) - सबसे बड़ा heading</span>';
-                } else if (line.includes('&lt;h2&gt;')) {
-                    guidedLine += '<span class="guide-hint">← उप-शीर्षक (H2) - दूसरा सबसे बड़ा heading</span>';
-                } else if (line.includes('&lt;p&gt;')) {
-                    guidedLine += '<span class="guide-hint">← पैराग्राफ - सामान्य text के लिए</span>';
-                } else if (line.includes('&lt;div')) {
-                    guidedLine += '<span class="guide-hint">← Div कंटेनर - elements को group करने के लिए</span>';
-                } else if (line.includes('&lt;button')) {
-                    guidedLine += '<span class="guide-hint">← Button - click करने के लिए</span>';
-                } else if (line.includes('&lt;img')) {
-                    guidedLine += '<span class="guide-hint">← Image - तस्वीर दिखाने के लिए</span>';
-                } else if (line.includes('&lt;a ')) {
-                    guidedLine += '<span class="guide-hint">← Link - दूसरे page पर जाने के लिए</span>';
+        function editShopTitle() {
+            document.getElementById('newShopTitle').value = shopTitle;
+            document.getElementById('editTitleModal').classList.remove('hidden');
+        }
+
+        // Theme Management
+        function initTheme() {
+            const savedTheme = localStorage.getItem('shopTheme') || 'light';
+            document.getElementById('themeSelect').value = savedTheme;
+            applyTheme(savedTheme);
+        }
+
+        function applyTheme(theme) {
+            const body = document.body;
+            
+            // Remove all theme classes
+            body.classList.remove('dark', 'vip-gold', 'vip-platinum', 'vip-diamond', 'vip-emerald', 'vip-ruby', 'vip-royal');
+            
+            if (theme === 'dark') {
+                body.classList.add('dark');
+            } else if (theme === 'vip-gold') {
+                body.classList.add('vip-gold');
+            } else if (theme === 'vip-platinum') {
+                body.classList.add('vip-platinum');
+            } else if (theme === 'vip-diamond') {
+                body.classList.add('vip-diamond');
+            } else if (theme === 'vip-emerald') {
+                body.classList.add('vip-emerald');
+            } else if (theme === 'vip-ruby') {
+                body.classList.add('vip-ruby');
+            } else if (theme === 'vip-royal') {
+                body.classList.add('vip-royal');
+            } else if (theme === 'auto') {
+                if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    body.classList.add('dark');
                 }
-                
-                // CSS Properties
-                else if (line.includes('body {')) {
-                    guidedLine += '<span class="guide-hint">← Body का स्टाइल - पूरे page का basic design</span>';
-                } else if (line.includes('.container {')) {
-                    guidedLine += '<span class="guide-hint">← Container का स्टाइल - main content box</span>';
-                } else if (line.includes('h1 {')) {
-                    guidedLine += '<span class="guide-hint">← H1 का स्टाइल - मुख्य शीर्षक की styling</span>';
-                } else if (line.includes('p {')) {
-                    guidedLine += '<span class="guide-hint">← Paragraph का स्टाइल - text की styling</span>';
-                } else if (line.includes('button {')) {
-                    guidedLine += '<span class="guide-hint">← Button का स्टाइल - button की design</span>';
-                } else if (line.includes('background:')) {
-                    guidedLine += '<span class="guide-hint">← Background - पीछे का रंग या image</span>';
-                } else if (line.includes('color:')) {
-                    guidedLine += '<span class="guide-hint">← Color - text का रंग</span>';
-                } else if (line.includes('padding:')) {
-                    guidedLine += '<span class="guide-hint">← Padding - element के अंदर की space</span>';
-                } else if (line.includes('margin:')) {
-                    guidedLine += '<span class="guide-hint">← Margin - element के बाहर की space</span>';
-                } else if (line.includes('font-size:')) {
-                    guidedLine += '<span class="guide-hint">← Font Size - text का size</span>';
-                } else if (line.includes('font-family:')) {
-                    guidedLine += '<span class="guide-hint">← Font Family - text का style/font</span>';
-                } else if (line.includes('border-radius:')) {
-                    guidedLine += '<span class="guide-hint">← Border Radius - गोल कोने बनाने के लिए</span>';
-                } else if (line.includes('border:')) {
-                    guidedLine += '<span class="guide-hint">← Border - element के चारों ओर line</span>';
-                } else if (line.includes('width:')) {
-                    guidedLine += '<span class="guide-hint">← Width - element की चौड़ाई</span>';
-                } else if (line.includes('height:')) {
-                    guidedLine += '<span class="guide-hint">← Height - element की ऊंचाई</span>';
-                } else if (line.includes('display:')) {
-                    guidedLine += '<span class="guide-hint">← Display - element कैसे दिखेगा (block, inline, flex)</span>';
-                } else if (line.includes('position:')) {
-                    guidedLine += '<span class="guide-hint">← Position - element की जगह (relative, absolute, fixed)</span>';
-                } else if (line.includes('text-align:')) {
-                    guidedLine += '<span class="guide-hint">← Text Align - text की alignment (left, center, right)</span>';
-                } else if (line.includes('cursor:')) {
-                    guidedLine += '<span class="guide-hint">← Cursor - माउस pointer का style</span>';
-                } else if (line.includes('linear-gradient')) {
-                    guidedLine += '<span class="guide-hint">← Linear Gradient - दो या ज्यादा रंगों का smooth blend</span>';
-                } else if (line.includes('rgba(')) {
-                    guidedLine += '<span class="guide-hint">← RGBA - पारदर्शी रंग (Red, Green, Blue, Alpha)</span>';
-                } else if (line.includes('backdrop-filter:')) {
-                    guidedLine += '<span class="guide-hint">← Backdrop Filter - पीछे के content पर blur effect</span>';
-                } else if (line.includes(':hover')) {
-                    guidedLine += '<span class="guide-hint">← Hover Effect - माउस के ऊपर आने पर style change</span>';
-                } else if (line.includes('onclick=')) {
-                    guidedLine += '<span class="guide-hint">← OnClick Event - click करने पर JavaScript function चलता है</span>';
-                }
-                
-                return guidedLine;
-            }).join('\n');
-
-            return highlighted;
-        }
-
-
-
-        function updateSyntaxHighlighting() {
-            const editor = document.getElementById('htmlEditor');
-            const highlighted = document.getElementById('highlightedCode');
-            const code = editor.value;
-            
-            highlighted.innerHTML = highlightSyntax(code);
-            
-            highlighted.scrollTop = editor.scrollTop;
-            highlighted.scrollLeft = editor.scrollLeft;
-        }
-
-        function toggleLiveMode() {
-            const editorTab = document.getElementById('editor');
-            const livePreviewPanel = document.getElementById('livePreviewPanel');
-            const button = event.target;
-            
-            isLiveMode = !isLiveMode;
-            
-            if (isLiveMode) {
-                editorTab.classList.add('live-mode');
-                livePreviewPanel.style.display = 'flex';
-                button.textContent = '📝 Edit Mode';
-                button.classList.remove('btn-primary');
-                button.classList.add('btn-warning');
-                updateLivePreview();
-            } else {
-                editorTab.classList.remove('live-mode');
-                livePreviewPanel.style.display = 'none';
-                button.textContent = '👁️ Live Mode';
-                button.classList.remove('btn-warning');
-                button.classList.add('btn-primary');
             }
+            
+            localStorage.setItem('shopTheme', theme);
         }
 
-        function updateLivePreview() {
-            if (isLiveMode) {
-                const htmlCode = document.getElementById('htmlEditor').value;
-                const livePreviewFrame = document.getElementById('livePreviewFrame');
-                
-                const blob = new Blob([htmlCode], { type: 'text/html' });
-                const url = URL.createObjectURL(blob);
-                livePreviewFrame.src = url;
-            }
-        }
+        // Tab Management
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
 
-        function switchTab(tabName) {
-            // Exit live mode if switching tabs
-            if (isLiveMode && tabName !== 'editor') {
-                const editorTab = document.getElementById('editor');
-                const livePreviewPanel = document.getElementById('livePreviewPanel');
-                const liveButton = document.querySelector('.btn-warning');
-                
-                editorTab.classList.remove('live-mode');
-                livePreviewPanel.style.display = 'none';
-                if (liveButton) {
-                    liveButton.textContent = '👁️ Live Mode';
-                    liveButton.classList.remove('btn-warning');
-                    liveButton.classList.add('btn-primary');
-                }
-                isLiveMode = false;
-            }
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('border-blue-500', 'text-blue-600');
+                        t.classList.add('border-transparent', 'text-gray-500');
+                    });
 
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
+                    // Add active class to clicked tab
+                    tab.classList.remove('border-transparent', 'text-gray-500');
+                    tab.classList.add('border-blue-500', 'text-blue-600');
+
+                    // Hide all content
+                    contents.forEach(content => content.classList.add('hidden'));
+
+                    // Show corresponding content
+                    const targetId = tab.id.replace('Tab', 'Mode');
+                    document.getElementById(targetId).classList.remove('hidden');
+                });
             });
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
-
-            if (tabName === 'saved') {
-                displaySavedFiles();
-            } else if (tabName === 'preview') {
-                updatePreview();
-            }
         }
 
-        function updatePreview() {
-            const htmlCode = document.getElementById('htmlEditor').value;
-            const previewFrame = document.getElementById('previewFrame');
-            
-            const blob = new Blob([htmlCode], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            previewFrame.src = url;
-            
-            showToast('Preview updated! 🎉');
+        // Items Management
+        function saveItems() {
+            localStorage.setItem('shopItems', JSON.stringify(items));
         }
 
-        function saveFile() {
-            const htmlCode = document.getElementById('htmlEditor').value.trim();
-            if (!htmlCode) {
-                showToast('कोई code नहीं है save करने के लिए!', 'error');
+        function saveCustomers() {
+            localStorage.setItem('shopCustomers', JSON.stringify(customers));
+        }
+
+        function renderItems() {
+            const itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = '';
+
+            // Use filtered items if search is active, otherwise use all items
+            const itemsToShow = filteredItems.length > 0 || document.getElementById('itemSearchInput')?.value ? filteredItems : items;
+
+            if (itemsToShow.length === 0) {
+                const searchValue = document.getElementById('itemSearchInput')?.value;
+                if (searchValue) {
+                    itemsList.innerHTML = '<p class="text-gray-500 text-center py-8">कोई वस्तु नहीं मिली। खोज बदलकर देखें।</p>';
+                } else {
+                    itemsList.innerHTML = '<p class="text-gray-500 text-center py-8">कोई वस्तु नहीं मिली। नई वस्तु जोड़ने के लिए + बटन दबाएं।</p>';
+                }
                 return;
             }
 
-            const fileName = prompt('File name enter करें:', currentFileName || `file_${Date.now()}.html`);
-            if (!fileName) return;
-
-            const fileData = {
-                name: fileName.endsWith('.html') ? fileName : fileName + '.html',
-                content: htmlCode,
-                timestamp: new Date().toLocaleString('hi-IN')
-            };
-
-            // Check if file already exists
-            const existingIndex = savedFiles.findIndex(f => f.name === fileData.name);
-            if (existingIndex !== -1) {
-                savedFiles[existingIndex] = fileData;
-            } else {
-                savedFiles.push(fileData);
+            // Sort items based on selected order
+            const sortOrder = document.getElementById('itemSortOrder')?.value || 'name';
+            let sortedItems = [...itemsToShow];
+            
+            if (sortOrder === 'name') {
+                sortedItems.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
+            } else if (sortOrder === 'date') {
+                sortedItems.sort((a, b) => new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0));
             }
 
-            localStorage.setItem('htmlTesterFiles', JSON.stringify(savedFiles));
-            currentFileName = fileData.name;
-            showToast(`File "${fileData.name}" saved! 💾`);
-        }
-
-        function displaySavedFiles() {
-            const container = document.getElementById('savedFilesList');
-            
-            if (savedFiles.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div>📁</div>
-                        <p>कोई saved files नहीं हैं</p>
+            sortedItems.forEach((item, originalIndex) => {
+                const actualIndex = items.findIndex(i => i === item);
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'pro-list-item p-4';
+                
+                let variantsHtml = '';
+                if (item.variants && item.variants.length > 0) {
+                    variantsHtml = item.variants.map(variant => 
+                        `<div class="text-sm mb-1">
+                            <div class="text-left">
+                                ${variant.price > 0 ? `<span class="font-bold text-lg text-green-700">₹${Math.round(variant.price)}</span>` : ''}
+                                <span class="text-gray-600 ${variant.price > 0 ? 'ml-2' : ''}">${variant.type}</span>
+                            </div>
+                        </div>`
+                    ).join('');
+                } else {
+                    // Legacy support for old format
+                    const price = item.price || 0;
+                    variantsHtml = `<div class="text-sm mb-1">
+                        <div class="text-left">
+                            ${price > 0 ? `<span class="font-bold text-lg text-green-700">₹${Math.round(price)}</span>` : ''}
+                            <span class="text-gray-600 ${price > 0 ? 'ml-2' : ''}">${item.type || 'सामान्य'}</span>
+                        </div>
+                    </div>`;
+                }
+                
+                itemDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <h3 class="font-semibold text-gray-900 text-lg">${item.name}</h3>
+                        <div class="flex gap-2">
+                            <button onclick="editItem(${actualIndex})" class="text-blue-500 hover:text-blue-700 p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                            </button>
+                            <button onclick="confirmDeleteItem(${actualIndex})" class="text-red-500 hover:text-red-700 p-1">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        ${variantsHtml}
                     </div>
                 `;
+                itemsList.appendChild(itemDiv);
+            });
+        }
+
+        function editItem(index) {
+            editingItemIndex = index;
+            const item = items[index];
+            
+            document.getElementById('itemModalTitle').textContent = 'वस्तु संपादित करें';
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('deleteItem').classList.remove('hidden');
+            
+            // Clear existing variants
+            const variantsContainer = document.getElementById('priceVariants');
+            variantsContainer.innerHTML = '';
+            
+            if (item.variants && item.variants.length > 0) {
+                item.variants.forEach(variant => {
+                    addVariantRow(variant.type, variant.price);
+                });
+            } else {
+                // Legacy support
+                addVariantRow(item.type || 'प्रति किलो', item.price);
+            }
+            
+            document.getElementById('addItemModal').classList.remove('hidden');
+        }
+
+        function deleteItem() {
+            if (editingItemIndex !== null && confirm('क्या आप इस वस्तु को हटाना चाहते हैं?')) {
+                items.splice(editingItemIndex, 1);
+                saveItems();
+                renderItems();
+                document.getElementById('addItemModal').classList.add('hidden');
+                resetItemForm();
+            }
+        }
+
+        function resetItemForm() {
+            editingItemIndex = null;
+            document.getElementById('itemModalTitle').textContent = 'नई वस्तु जोड़ें';
+            document.getElementById('deleteItem').classList.add('hidden');
+            document.getElementById('addItemForm').reset();
+            
+            // Reset to single variant
+            const variantsContainer = document.getElementById('priceVariants');
+            variantsContainer.innerHTML = '';
+        }
+
+        function addVariantRow(type = 'प्रति किलो', price = '') {
+            const variantsContainer = document.getElementById('priceVariants');
+            const variantDiv = document.createElement('div');
+            variantDiv.className = 'flex gap-2 items-center price-variant';
+            variantDiv.innerHTML = `
+                <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type">
+                    <option value="प्रति किलो" ${type === 'प्रति किलो' ? 'selected' : ''}>प्रति किलो</option>
+                    <option value="प्रति नग" ${type === 'प्रति नग' ? 'selected' : ''}>प्रति नग</option>
+                    <option value="प्रति दर्जन" ${type === 'प्रति दर्जन' ? 'selected' : ''}>प्रति दर्जन</option>
+                    <option value="प्रति पैकेट" ${type === 'प्रति पैकेट' ? 'selected' : ''}>प्रति पैकेट</option>
+                    <option value="प्रति लीटर" ${type === 'प्रति लीटर' ? 'selected' : ''}>प्रति लीटर</option>
+                    <option value="प्रति मीटर" ${type === 'प्रति मीटर' ? 'selected' : ''}>प्रति मीटर</option>
+                    <option value="अन्य" ${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? 'selected' : ''}>अन्य</option>
+                </select>
+                <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md custom-type ${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? '' : 'hidden'}" placeholder="कस्टम प्रकार" value="${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? type : ''}">
+                <input type="number" class="w-24 p-2 border border-gray-300 rounded-md variant-price" step="0.01" placeholder="दर" value="${price}" required>
+                <button type="button" class="text-red-500 hover:text-red-700 remove-variant" onclick="removeVariant(this)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            variantsContainer.appendChild(variantDiv);
+            
+            // Add event listener for variant type change
+            const select = variantDiv.querySelector('.variant-type');
+            const customInput = variantDiv.querySelector('.custom-type');
+            select.addEventListener('change', function() {
+                if (this.value === 'अन्य') {
+                    customInput.classList.remove('hidden');
+                    customInput.required = true;
+                } else {
+                    customInput.classList.add('hidden');
+                    customInput.required = false;
+                    customInput.value = '';
+                }
+            });
+        }
+
+        function removeVariant(button) {
+            const variants = document.querySelectorAll('.price-variant');
+            if (variants.length > 1) {
+                button.closest('.price-variant').remove();
+            }
+        }
+
+        function renderCustomers() {
+            const customersList = document.getElementById('customersList');
+            customersList.innerHTML = '';
+
+            // Use filtered customers if search is active, otherwise use all customers
+            const customersToShow = filteredCustomers.length > 0 || document.getElementById('customerSearchInput')?.value ? filteredCustomers : customers;
+
+            if (customersToShow.length === 0) {
+                const searchValue = document.getElementById('customerSearchInput')?.value;
+                if (searchValue) {
+                    customersList.innerHTML = '<p class="text-gray-500 text-center py-8">कोई ग्राहक नहीं मिला। खोज बदलकर देखें।</p>';
+                } else {
+                    customersList.innerHTML = '<p class="text-gray-500 text-center py-8">कोई ग्राहक नहीं मिला। नया ग्राहक जोड़ने के लिए + बटन दबाएं।</p>';
+                }
                 return;
             }
 
-            container.innerHTML = savedFiles.map((file, index) => `
-                <div class="file-item">
-                    <div>
-                        <div class="file-name">${file.name}</div>
-                        <small style="color: #6c757d;">${file.timestamp}</small>
+            // Sort customers based on selected order
+            const sortOrder = document.getElementById('customerSortOrder')?.value || 'recent';
+            let sortedCustomers = [...customersToShow];
+            
+            if (sortOrder === 'name') {
+                sortedCustomers.sort((a, b) => a.name.localeCompare(b.name, 'hi'));
+            } else if (sortOrder === 'recent') {
+                sortedCustomers.sort((a, b) => {
+                    const aLastUpdate = a.lastUpdated || a.dateAdded || 0;
+                    const bLastUpdate = b.lastUpdated || b.dateAdded || 0;
+                    return new Date(bLastUpdate) - new Date(aLastUpdate);
+                });
+            }
+
+            sortedCustomers.forEach((customer) => {
+                const actualIndex = customers.findIndex(c => c === customer);
+                const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+                const customerDiv = document.createElement('div');
+                customerDiv.className = 'pro-list-item p-4 cursor-pointer';
+                
+                customerDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-3" onclick="toggleCustomerDetails(${actualIndex})">
+                        <div>
+                            <h3 class="font-semibold text-gray-900 text-lg">${customer.name}</h3>
+                            <p class="text-lg font-bold text-red-600 text-left">₹${Math.round(total)}</p>
+                        </div>
+                        <div class="flex gap-2" onclick="event.stopPropagation()">
+                            <button onclick="addTransaction(${actualIndex})" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                                + जोड़ें
+                            </button>
+                            <div class="relative">
+                                <button onclick="toggleCustomerMenu(${actualIndex})" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm customer-menu-btn">
+                                    ⋮
+                                </button>
+                                <div id="customerMenu${actualIndex}" class="hidden absolute right-0 mt-1 w-40 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+                                    <button onclick="addPayment(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-green-600 hover:bg-gray-100">
+                                        💰 जमा
+                                    </button>
+                                    <button onclick="sendNotice(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-orange-600 hover:bg-gray-100">
+                                        📤 नोटिस भेजें
+                                    </button>
+                                    <button onclick="printCustomer(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                        🖨️ प्रिंट
+                                    </button>
+                                    <button onclick="deleteCustomer(${actualIndex})" class="block w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                        🗑️ हटाएं
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="file-actions">
-                        <button class="btn btn-primary btn-sm" onclick="loadFile(${index})">📂 Load</button>
-                        <button class="btn btn-success btn-sm" onclick="downloadFile(${index})">⬇️ Download</button>
-                        <button class="btn btn-warning btn-sm" onclick="deleteFile(${index})">🗑️ Delete</button>
+                    <div id="customerDetails${actualIndex}" class="hidden space-y-2 border-t border-gray-200 pt-3">
+                        ${customer.transactions.slice().reverse().map((t, reverseIndex) => {
+                            const tIndex = customer.transactions.length - 1 - reverseIndex;
+                            let itemsDisplay = '';
+                            if (Array.isArray(t.itemsWithAmounts) && t.itemsWithAmounts.length > 0) {
+                                itemsDisplay = t.itemsWithAmounts.map(item => `${item.name} (₹${Math.round(item.amount)})`).join(', ');
+                            } else if (Array.isArray(t.items)) {
+                                itemsDisplay = t.items.join(', ');
+                            } else {
+                                itemsDisplay = t.item || '';
+                            }
+                            
+                            // Check if this is a payment transaction
+                            const isPayment = t.type === 'payment';
+                            const bgColor = isPayment ? 'bg-blue-50' : 'bg-gray-50';
+                            const textColor = isPayment ? 'text-blue-600' : 'text-green-600';
+                            const prefix = isPayment ? 'जमा: -₹' : '₹';
+                            
+                            return `
+                            <div class="text-sm ${bgColor} p-3 rounded">
+                                <div class="flex justify-between items-start mb-2">
+                                    <div class="text-left">
+                                        <span class="font-bold ${textColor}">${prefix}${Math.round(Math.abs(t.amount))}</span>
+                                        <span class="font-medium ml-2">${itemsDisplay}</span>
+                                        ${t.buyer && t.buyer !== customer.name ? `<span class="text-gray-600 text-sm ml-2">(${t.buyer})</span>` : ''}
+                                        ${t.remainingAmount !== undefined ? `<div class="text-xs text-gray-600 mt-1">बाकी: ₹${Math.round(t.remainingAmount)}</div>` : ''}
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-xs text-gray-500">${new Date(t.date).toLocaleString('hi-IN')}</span>
+                                        <button onclick="deleteTransaction(${actualIndex}, ${tIndex})" class="text-red-500 hover:text-red-700">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        }).join('')}
+                    </div>
+                `;
+                customersList.appendChild(customerDiv);
+            });
+        }
+
+        function toggleCustomerMenu(index) {
+            const menu = document.getElementById(`customerMenu${index}`);
+            // Close all other menus
+            document.querySelectorAll('[id^="customerMenu"]').forEach(m => {
+                if (m.id !== `customerMenu${index}`) {
+                    m.classList.add('hidden');
+                }
+            });
+            menu.classList.toggle('hidden');
+        }
+
+        function deleteCustomer(index) {
+            if (confirm('क्या आप इस ग्राहक को हटाना चाहते हैं?')) {
+                customers.splice(index, 1);
+                saveCustomers();
+                renderCustomers();
+            }
+        }
+
+        function deleteTransaction(customerIndex, transactionIndex) {
+            if (confirm('क्या आप इस लेन-देन को हटाना चाहते हैं?')) {
+                customers[customerIndex].transactions.splice(transactionIndex, 1);
+                saveCustomers();
+                renderCustomers();
+            }
+        }
+
+        function addTransaction(customerIndex) {
+            currentCustomerId = customerIndex;
+            const customer = customers[customerIndex];
+            document.getElementById('buyerName').placeholder = `डिफ़ॉल्ट: ${customer.name}`;
+            
+            // Reset form
+            document.getElementById('transactionItems').innerHTML = '';
+            addTransactionItem();
+            updateTotalAmount();
+            
+            document.getElementById('addTransactionModal').classList.remove('hidden');
+        }
+
+        function addTransactionItem() {
+            const container = document.getElementById('transactionItems');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'transaction-item border border-gray-200 rounded-md p-3';
+            itemDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <div>
+                        <input type="number" class="w-full p-2 border border-gray-300 rounded-md item-amount" step="0.01" placeholder="राशि (₹)" required>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md item-name" placeholder="सामान का नाम" required>
+                        <button type="button" class="text-red-500 hover:text-red-700 remove-transaction-item" onclick="removeTransactionItem(this)">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
-            `).join('');
-        }
-
-        function loadFile(index) {
-            const file = savedFiles[index];
-            document.getElementById('htmlEditor').value = file.content;
-            currentFileName = file.name;
-            switchTab('editor');
-            document.querySelector('.tab').classList.add('active');
-            showToast(`File "${file.name}" loaded! 📂`);
-        }
-
-        function downloadFile(index) {
-            const file = savedFiles[index];
-            downloadHTML(file.content, file.name);
-        }
-
-        function downloadCurrentHTML() {
-            const htmlCode = document.getElementById('htmlEditor').value;
-            if (!htmlCode.trim()) {
-                showToast('कोई code नहीं है download करने के लिए!', 'error');
-                return;
-            }
-            const fileName = currentFileName || 'my_html_file.html';
-            downloadHTML(htmlCode, fileName);
-        }
-
-        function downloadHTML(content, fileName) {
-            // Create a text area with the content for user to copy
-            const textarea = document.createElement('textarea');
-            textarea.value = content;
-            textarea.style.position = 'fixed';
-            textarea.style.top = '50%';
-            textarea.style.left = '50%';
-            textarea.style.transform = 'translate(-50%, -50%)';
-            textarea.style.width = '90%';
-            textarea.style.height = '300px';
-            textarea.style.zIndex = '10000';
-            textarea.style.background = 'white';
-            textarea.style.border = '2px solid #4facfe';
-            textarea.style.borderRadius = '8px';
-            textarea.style.padding = '10px';
-            textarea.style.fontSize = '12px';
-            textarea.style.fontFamily = 'monospace';
+                <div class="item-list space-y-2">
+                    <!-- Additional items will be added here -->
+                </div>
+            `;
+            container.appendChild(itemDiv);
             
-            const overlay = document.createElement('div');
-            overlay.style.position = 'fixed';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.background = 'rgba(0,0,0,0.8)';
-            overlay.style.zIndex = '9999';
-            overlay.style.display = 'flex';
-            overlay.style.flexDirection = 'column';
-            overlay.style.alignItems = 'center';
-            overlay.style.justifyContent = 'center';
-            overlay.style.padding = '20px';
+            // Add event listeners
+            const amountInput = itemDiv.querySelector('.item-amount');
+            const nameInput = itemDiv.querySelector('.item-name');
             
-            const title = document.createElement('h3');
-            title.textContent = `${fileName} - Copy this code`;
-            title.style.color = 'white';
-            title.style.marginBottom = '10px';
-            title.style.textAlign = 'center';
+            amountInput.addEventListener('input', function() {
+                updateTotalAmount();
+            });
             
-            const instructions = document.createElement('p');
-            instructions.textContent = 'Select all text and copy it, then save as .html file';
-            instructions.style.color = 'white';
-            instructions.style.marginBottom = '10px';
-            instructions.style.textAlign = 'center';
-            instructions.style.fontSize = '14px';
-            
-            const closeBtn = document.createElement('button');
-            closeBtn.textContent = '❌ Close';
-            closeBtn.style.marginTop = '10px';
-            closeBtn.style.padding = '10px 20px';
-            closeBtn.style.background = '#ff4757';
-            closeBtn.style.color = 'white';
-            closeBtn.style.border = 'none';
-            closeBtn.style.borderRadius = '5px';
-            closeBtn.style.cursor = 'pointer';
-            
-            const copyBtn = document.createElement('button');
-            copyBtn.textContent = '📋 Copy to Clipboard';
-            copyBtn.style.marginTop = '10px';
-            copyBtn.style.marginRight = '10px';
-            copyBtn.style.padding = '10px 20px';
-            copyBtn.style.background = '#2ed573';
-            copyBtn.style.color = 'white';
-            copyBtn.style.border = 'none';
-            copyBtn.style.borderRadius = '5px';
-            copyBtn.style.cursor = 'pointer';
-            
-            const buttonContainer = document.createElement('div');
-            buttonContainer.appendChild(copyBtn);
-            buttonContainer.appendChild(closeBtn);
-            
-            overlay.appendChild(title);
-            overlay.appendChild(instructions);
-            overlay.appendChild(textarea);
-            overlay.appendChild(buttonContainer);
-            
-            document.body.appendChild(overlay);
-            textarea.select();
-            textarea.focus();
-            
-            copyBtn.onclick = () => {
-                textarea.select();
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(content).then(() => {
-                        showToast('Code copied to clipboard! 📋');
-                    });
-                } else {
-                    document.execCommand('copy');
-                    showToast('Code copied! 📋');
+            nameInput.addEventListener('input', function() {
+                if (this.value.trim()) {
+                    addItemToList(itemDiv);
                 }
-            };
-            
-            closeBtn.onclick = () => {
-                document.body.removeChild(overlay);
-            };
-            
-            overlay.onclick = (e) => {
-                if (e.target === overlay) {
-                    document.body.removeChild(overlay);
-                }
-            };
+            });
         }
-
-        function deleteFile(index) {
-            if (confirm('क्या आप इस file को delete करना चाहते हैं?')) {
-                savedFiles.splice(index, 1);
-                localStorage.setItem('htmlTesterFiles', JSON.stringify(savedFiles));
-                displaySavedFiles();
-                showToast('File deleted! 🗑️');
-            }
-        }
-
-        function clearEditor() {
-            if (confirm('क्या आप editor को clear करना चाहते हैं?')) {
-                const editor = document.getElementById('htmlEditor');
-                editor.value = '';
-                currentFileName = '';
-                updateSyntaxHighlighting();
-                updateLivePreview();
-                showToast('Editor cleared! 🗑️');
-            }
-        }
-
-        function clearAllSaved() {
-            if (confirm('क्या आप सभी saved files को delete करना चाहते हैं?')) {
-                savedFiles = [];
-                localStorage.setItem('htmlTesterFiles', JSON.stringify(savedFiles));
-                displaySavedFiles();
-                showToast('All files deleted! 🗑️');
-            }
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.style.background = type === 'error' ? '#dc3545' : '#28a745';
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
-
-        // Initialize preview on load
-        window.onload = function() {
-            updatePreview();
-            updateSyntaxHighlighting();
-        };
-
-        // Auto-save functionality and syntax highlighting
-        let autoSaveTimeout;
-        const htmlEditor = document.getElementById('htmlEditor');
         
-        htmlEditor.addEventListener('input', function() {
-            updateSyntaxHighlighting();
-            updateLivePreview();
+        function addItemToList(parentDiv) {
+            const itemList = parentDiv.querySelector('.item-list');
+            const existingItems = itemList.querySelectorAll('.additional-item');
             
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(() => {
-                if (currentFileName) {
-                    const fileIndex = savedFiles.findIndex(f => f.name === currentFileName);
-                    if (fileIndex !== -1) {
-                        savedFiles[fileIndex].content = this.value;
-                        savedFiles[fileIndex].timestamp = new Date().toLocaleString('hi-IN');
-                        localStorage.setItem('htmlTesterFiles', JSON.stringify(savedFiles));
+            // Check if last item is filled
+            if (existingItems.length === 0 || existingItems[existingItems.length - 1].querySelector('.additional-item-name').value.trim()) {
+                const newItemDiv = document.createElement('div');
+                newItemDiv.className = 'additional-item grid grid-cols-1 md:grid-cols-2 gap-3';
+                newItemDiv.innerHTML = `
+                    <div>
+                        <input type="number" class="w-full p-2 border border-gray-300 rounded-md additional-item-amount" step="0.01" placeholder="राशि (₹)">
+                    </div>
+                    <div>
+                        <input type="text" class="w-full p-2 border border-gray-300 rounded-md additional-item-name" placeholder="अगला सामान (वैकल्पिक)">
+                    </div>
+                `;
+                itemList.appendChild(newItemDiv);
+                
+                // Add event listeners
+                const nameInput = newItemDiv.querySelector('.additional-item-name');
+                const amountInput = newItemDiv.querySelector('.additional-item-amount');
+                
+                nameInput.addEventListener('input', function() {
+                    if (this.value.trim()) {
+                        addItemToList(parentDiv);
+                    }
+                });
+                
+                amountInput.addEventListener('input', function() {
+                    updateTotalAmount();
+                });
+            }
+        }
+
+        function removeTransactionItem(button) {
+            const items = document.querySelectorAll('.transaction-item');
+            if (items.length > 1) {
+                button.closest('.transaction-item').remove();
+                updateTotalAmount();
+            }
+        }
+
+        function updateTotalAmount() {
+            const mainAmounts = document.querySelectorAll('.item-amount');
+            const additionalAmounts = document.querySelectorAll('.additional-item-amount');
+            let total = 0;
+            
+            mainAmounts.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            
+            additionalAmounts.forEach(input => {
+                total += parseFloat(input.value) || 0;
+            });
+            
+            document.getElementById('totalAmount').textContent = `₹${total.toFixed(2)}`;
+        }
+
+        function printCustomer(index) {
+            const customer = customers[index];
+            const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>बहीखाता - ${customer.name}</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .customer-info { margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .total { font-weight: bold; font-size: 18px; margin-top: 20px; text-align: left; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${shopTitle}</h1>
+                        <p>दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                    </div>
+                    <div class="customer-info">
+                        <h2>ग्राहक: ${customer.name}</h2>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>राशि (₹)</th>
+                                <th>सामान</th>
+                                <th>दिनांक व समय</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${customer.transactions.map(t => {
+                                let itemsDisplay = '';
+                                if (Array.isArray(t.itemsWithAmounts) && t.itemsWithAmounts.length > 0) {
+                                    itemsDisplay = t.itemsWithAmounts.map(item => `${item.name}${item.amount > 0 ? ` (₹${Math.round(item.amount)})` : ''}`).join(', ');
+                                } else if (Array.isArray(t.items)) {
+                                    itemsDisplay = t.items.join(', ');
+                                } else {
+                                    itemsDisplay = t.item || '';
+                                }
+                                
+                                return `
+                                <tr>
+                                    <td style="text-align: left;">₹${Math.round(t.amount)}</td>
+                                    <td style="text-align: left;">${itemsDisplay}${t.buyer && t.buyer !== customer.name ? ` (${t.buyer})` : ''}</td>
+                                    <td>${new Date(t.date).toLocaleString('hi-IN')}</td>
+                                </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    <div class="total" style="text-align: left;">
+                        कुल राशि: ₹${Math.round(total)}
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Calculator Functions
+        let calcDisplay = '';
+        let calcSteps = [];
+        let currentCalculation = '';
+
+        function appendToDisplay(value) {
+            const display = document.getElementById('calcDisplay');
+            
+            // Prevent multiple consecutive operators
+            const operators = ['+', '-', '*', '/'];
+            const lastChar = calcDisplay.slice(-1);
+            
+            if (operators.includes(value) && operators.includes(lastChar)) {
+                // Replace the last operator with the new one
+                calcDisplay = calcDisplay.slice(0, -1) + value;
+            } else if (value === '.' && calcDisplay.includes('.')) {
+                // Prevent multiple decimal points in the same number
+                const parts = calcDisplay.split(/[+\-*/]/);
+                const lastPart = parts[parts.length - 1];
+                if (lastPart.includes('.')) {
+                    return; // Don't add another decimal point
+                }
+                calcDisplay += value;
+            } else {
+                calcDisplay += value;
+            }
+            
+            display.value = calcDisplay;
+            updateCalcSteps();
+        }
+
+        function clearCalculator() {
+            calcDisplay = '';
+            calcSteps = [];
+            currentCalculation = '';
+            document.getElementById('calcDisplay').value = '';
+            document.getElementById('calcStepsContent').textContent = '0';
+        }
+
+        function deleteLast() {
+            calcDisplay = calcDisplay.slice(0, -1);
+            document.getElementById('calcDisplay').value = calcDisplay;
+            updateCalcSteps();
+        }
+
+        function handleDisplayInput() {
+            const display = document.getElementById('calcDisplay');
+            let value = display.value;
+            
+            // Clean the input to prevent invalid characters
+            value = value.replace(/[^0-9+\-*/.]/g, '');
+            
+            // Prevent multiple consecutive operators
+            value = value.replace(/([+\-*/]){2,}/g, '$1');
+            
+            // Prevent multiple decimal points in the same number
+            const parts = value.split(/([+\-*/])/);
+            for (let i = 0; i < parts.length; i++) {
+                if (!/[+\-*/]/.test(parts[i])) {
+                    // This is a number part, check for multiple decimal points
+                    const decimalCount = (parts[i].match(/\./g) || []).length;
+                    if (decimalCount > 1) {
+                        // Keep only the first decimal point
+                        const firstDecimalIndex = parts[i].indexOf('.');
+                        parts[i] = parts[i].substring(0, firstDecimalIndex + 1) + parts[i].substring(firstDecimalIndex + 1).replace(/\./g, '');
                     }
                 }
-            }, 2000);
-        });
-
-        htmlEditor.addEventListener('scroll', function() {
-            const highlighted = document.getElementById('highlightedCode');
-            highlighted.scrollTop = this.scrollTop;
-            highlighted.scrollLeft = this.scrollLeft;
-        });
-
-        htmlEditor.addEventListener('keydown', function(e) {
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                const start = this.selectionStart;
-                const end = this.selectionEnd;
-                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
-                this.selectionStart = this.selectionEnd = start + 4;
-                updateSyntaxHighlighting();
             }
+            value = parts.join('');
+            
+            calcDisplay = value;
+            display.value = calcDisplay;
+            updateCalcSteps();
+        }
+
+        function handleKeyDown(event) {
+            // Allow Enter key to calculate
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                calculate();
+                return;
+            }
+            
+            // Allow control keys
+            const controlKeys = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'Tab'];
+            if (controlKeys.includes(event.key) || event.ctrlKey) {
+                return;
+            }
+            
+            // Allow only numbers, operators, and decimal point
+            const allowedKeys = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '-', '*', '/', '.'];
+            if (!allowedKeys.includes(event.key)) {
+                event.preventDefault();
+                return;
+            }
+            
+            // Prevent multiple consecutive operators
+            const operators = ['+', '-', '*', '/'];
+            const currentValue = event.target.value;
+            const lastChar = currentValue.slice(-1);
+            
+            if (operators.includes(event.key) && operators.includes(lastChar)) {
+                event.preventDefault();
+                return;
+            }
+            
+            // Prevent multiple decimal points in current number
+            if (event.key === '.') {
+                const parts = currentValue.split(/[+\-*/]/);
+                const lastPart = parts[parts.length - 1];
+                if (lastPart.includes('.')) {
+                    event.preventDefault();
+                    return;
+                }
+            }
+        }
+
+        function updateCalcSteps() {
+            const stepsContent = document.getElementById('calcStepsContent');
+            
+            if (!calcDisplay) {
+                stepsContent.textContent = '0';
+                return;
+            }
+            
+            try {
+                // Show current expression being typed
+                let displayExpression = calcDisplay.replace(/\*/g, '×');
+                
+                // Try to evaluate if expression is complete
+                let expression = calcDisplay.replace(/×/g, '*');
+                
+                // Handle incomplete expressions (ending with operators)
+                let cleanExpression = expression;
+                if (/[+\-*/]$/.test(expression)) {
+                    cleanExpression = expression.slice(0, -1);
+                    stepsContent.textContent = displayExpression;
+                    return;
+                }
+                
+                if (cleanExpression && cleanExpression.trim() && cleanExpression !== '0') {
+                    // Validate expression
+                    if (!/^[0-9+\-*/.() ]+$/.test(cleanExpression)) {
+                        stepsContent.textContent = displayExpression;
+                        return;
+                    }
+                    
+                    // Check for division by zero
+                    if (cleanExpression.includes('/0')) {
+                        stepsContent.textContent = `${displayExpression} = Error`;
+                        return;
+                    }
+                    
+                    const result = eval(cleanExpression);
+                    
+                    // Check if result is valid
+                    if (isNaN(result) || !isFinite(result)) {
+                        stepsContent.textContent = displayExpression;
+                        return;
+                    }
+                    
+                    const roundedResult = Math.round(result);
+                    
+                    // Show intermediate calculation
+                    if (cleanExpression.includes('+') || cleanExpression.includes('-') || cleanExpression.includes('*') || cleanExpression.includes('/')) {
+                        stepsContent.textContent = `${displayExpression} = ${roundedResult}`;
+                    } else {
+                        stepsContent.textContent = displayExpression;
+                    }
+                } else {
+                    stepsContent.textContent = displayExpression;
+                }
+            } catch (e) {
+                stepsContent.textContent = calcDisplay.replace(/\*/g, '×');
+            }
+        }
+
+        function calculate() {
+            if (!calcDisplay || calcDisplay.trim() === '') {
+                return;
+            }
+            
+            try {
+                let expression = calcDisplay.replace(/×/g, '*');
+                
+                // Handle incomplete expressions (ending with operators)
+                if (/[+\-*/]$/.test(expression)) {
+                    expression = expression.slice(0, -1);
+                }
+                
+                // Check for empty or invalid expression
+                if (!expression || !expression.trim()) {
+                    return;
+                }
+                
+                // Validate expression before evaluation
+                if (!/^[0-9+\-*/.() ]+$/.test(expression)) {
+                    document.getElementById('calcStepsContent').textContent = 'Error: गलत गणना';
+                    return;
+                }
+                
+                // Check for division by zero
+                if (expression.includes('/0')) {
+                    document.getElementById('calcStepsContent').textContent = 'Error: भाग शून्य से नहीं हो सकता';
+                    return;
+                }
+                
+                const result = eval(expression);
+                
+                // Check if result is valid
+                if (isNaN(result) || !isFinite(result)) {
+                    document.getElementById('calcStepsContent').textContent = 'Error: गलत परिणाम';
+                    return;
+                }
+                
+                // Round result
+                const roundedResult = Math.round(result);
+                
+                // Store the complete calculation in steps
+                const displayExpression = calcDisplay.replace(/\*/g, '×');
+                currentCalculation = `${displayExpression} = ${roundedResult}`;
+                
+                // Add to calculation steps history - only if it's a valid calculation
+                if (displayExpression && roundedResult !== undefined) {
+                    calcSteps.push(currentCalculation);
+                }
+                
+                // Update steps to show the complete calculation
+                document.getElementById('calcStepsContent').textContent = currentCalculation;
+                
+                // Set display to result for further calculations
+                calcDisplay = roundedResult.toString();
+                document.getElementById('calcDisplay').value = calcDisplay;
+                
+            } catch (error) {
+                // Show error in steps without changing display
+                document.getElementById('calcStepsContent').textContent = 'Error: गलत गणना';
+                console.error('Calculator error:', error);
+            }
+        }
+
+        function addPayment(customerIndex) {
+            const customer = customers[customerIndex];
+            const totalDue = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('paymentCustomerName').value = customer.name;
+            document.getElementById('totalDueAmount').value = `₹${Math.round(totalDue)}`;
+            document.getElementById('paymentAmount').value = '';
+            
+            // Store customer index for form submission
+            document.getElementById('addPaymentForm').dataset.customerIndex = customerIndex;
+            
+            document.getElementById('addPaymentModal').classList.remove('hidden');
+        }
+
+        function openCalcToBahikhata() {
+            // Get the calculated result from the steps or display
+            let amount = 0;
+            
+            // First try to get from current calculation result
+            if (currentCalculation && currentCalculation.includes('=')) {
+                const parts = currentCalculation.split('=');
+                if (parts.length === 2) {
+                    amount = parseFloat(parts[1].trim());
+                }
+            }
+            
+            // If no current calculation, try from display
+            if (!amount || amount <= 0) {
+                amount = parseFloat(calcDisplay);
+            }
+            
+            // If still no valid amount, show error
+            if (!amount || amount <= 0 || isNaN(amount)) {
+                alert('पहले कोई राशि calculate करें या valid number enter करें');
+                return;
+            }
+            
+            // Update customer dropdown
+            const dropdown = document.getElementById('calcCustomerDropdown');
+            dropdown.innerHTML = '';
+            customers.forEach((customer, index) => {
+                const option = document.createElement('div');
+                option.className = 'px-3 py-2 hover:bg-gray-100 cursor-pointer';
+                option.textContent = customer.name;
+                option.onclick = () => selectCustomer(customer.name, index);
+                dropdown.appendChild(option);
+            });
+            
+            document.getElementById('calcCustomerInput').value = '';
+            document.getElementById('calcAmount').value = Math.round(amount);
+            document.getElementById('calcToBahikhataModal').classList.remove('hidden');
+        }
+
+        function openCalcHistory() {
+            renderCalcHistory();
+            document.getElementById('calcHistoryModal').classList.remove('hidden');
+        }
+
+        function renderCalcHistory() {
+            const historyContent = document.getElementById('calcHistoryContent');
+            historyContent.innerHTML = '';
+
+            // Show calculator steps history first
+            if (calcSteps.length > 0) {
+                const stepsDiv = document.createElement('div');
+                stepsDiv.className = 'mb-4';
+                stepsDiv.innerHTML = '<h4 class="font-semibold text-gray-700 mb-2">गणना के चरण:</h4>';
+                
+                calcSteps.slice().reverse().forEach((step, index) => {
+                    const stepDiv = document.createElement('div');
+                    stepDiv.className = 'border border-blue-200 rounded-md p-3 bg-blue-50 mb-2 cursor-pointer hover:bg-blue-100';
+                    stepDiv.innerHTML = `
+                        <div class="font-mono text-lg text-blue-800">${step}</div>
+                        <div class="text-xs text-blue-600 mt-1">क्लिक करके दोबारा उपयोग करें</div>
+                    `;
+                    
+                    // Add click handler to reuse calculation
+                    stepDiv.addEventListener('click', function() {
+                        const parts = step.split(' = ');
+                        if (parts.length === 2) {
+                            calcDisplay = parts[1];
+                            document.getElementById('calcDisplay').value = calcDisplay;
+                            document.getElementById('calcStepsContent').textContent = step;
+                            document.getElementById('calcHistoryModal').classList.add('hidden');
+                        }
+                    });
+                    
+                    stepsDiv.appendChild(stepDiv);
+                });
+                
+                historyContent.appendChild(stepsDiv);
+            }
+
+            // Show bahikhata history
+            if (calcHistory.length > 0) {
+                const bahikhataDiv = document.createElement('div');
+                bahikhataDiv.innerHTML = '<h4 class="font-semibold text-gray-700 mb-2">बहीखाता में जोड़े गए:</h4>';
+                
+                calcHistory.slice().reverse().forEach((entry, index) => {
+                    const historyDiv = document.createElement('div');
+                    historyDiv.className = 'border border-gray-200 rounded-md p-3 bg-gray-50 mb-2';
+                    historyDiv.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="font-semibold text-green-600">₹${entry.amount}</span>
+                                <span class="text-sm text-gray-600 ml-2">${new Date(entry.date).toLocaleString('hi-IN')}</span>
+                            </div>
+                        </div>
+                        <div class="text-sm">
+                            <div><strong>ग्राहक:</strong> ${entry.customerName}</div>
+                            <div><strong>विवरण:</strong> ${entry.description}</div>
+                        </div>
+                    `;
+                    bahikhataDiv.appendChild(historyDiv);
+                });
+                
+                historyContent.appendChild(bahikhataDiv);
+            }
+
+            // If no history at all
+            if (calcSteps.length === 0 && calcHistory.length === 0) {
+                historyContent.innerHTML = '<p class="text-gray-500 text-center py-4">कोई हिस्ट्री नहीं मिली</p>';
+            }
+        }
+
+        function saveCalcHistory() {
+            localStorage.setItem('calcHistory', JSON.stringify(calcHistory));
+        }
+
+        function clearCalcHistory() {
+            if (confirm('क्या आप सभी हिस्ट्री साफ़ करना चाहते हैं?')) {
+                calcSteps = [];
+                calcHistory = [];
+                saveCalcHistory();
+                renderCalcHistory();
+            }
+        }
+
+        function selectCustomer(name, index) {
+            document.getElementById('calcCustomerInput').value = name;
+            document.getElementById('calcCustomerInput').dataset.customerIndex = index;
+            document.getElementById('calcCustomerDropdown').classList.add('hidden');
+        }
+
+        function toggleCustomerDetails(index) {
+            const details = document.getElementById(`customerDetails${index}`);
+            const isHidden = details.classList.contains('hidden');
+            
+            // Close all other customer details
+            document.querySelectorAll('[id^="customerDetails"]').forEach(d => {
+                if (d.id !== `customerDetails${index}`) {
+                    d.classList.add('hidden');
+                }
+            });
+            
+            // Toggle current customer details
+            details.classList.toggle('hidden');
+            
+            // Show/hide menu buttons based on dropdown state
+            const menuBtn = document.querySelector(`button[onclick="toggleCustomerMenu(${index})"]`);
+            if (details.classList.contains('hidden')) {
+                // Dropdown is closed - hide menu button
+                menuBtn.style.display = 'none';
+            } else {
+                // Dropdown is open - show menu button
+                menuBtn.style.display = 'inline-block';
+            }
+        }
+
+        function confirmDeleteItem(index) {
+            if (confirm('क्या आप इस वस्तु को हटाना चाहते हैं?')) {
+                items.splice(index, 1);
+                saveItems();
+                renderItems();
+            }
+        }
+
+        function addVariantRow(type = 'प्रति किलो', price = '') {
+            const variantsContainer = document.getElementById('priceVariants');
+            const variantDiv = document.createElement('div');
+            variantDiv.className = 'flex gap-2 items-center price-variant';
+            variantDiv.innerHTML = `
+                <input type="number" class="w-32 p-2 border border-gray-300 rounded-md variant-price" placeholder="दर (₹)" value="${price}">
+                <select class="flex-1 p-2 border border-gray-300 rounded-md variant-type">
+                    <option value="प्रति किलो" ${type === 'प्रति किलो' ? 'selected' : ''}>प्रति किलो</option>
+                    <option value="प्रति नग" ${type === 'प्रति नग' ? 'selected' : ''}>प्रति नग</option>
+                    <option value="प्रति दर्जन" ${type === 'प्रति दर्जन' ? 'selected' : ''}>प्रति दर्जन</option>
+                    <option value="प्रति पैकेट" ${type === 'प्रति पैकेट' ? 'selected' : ''}>प्रति पैकेट</option>
+                    <option value="प्रति लीटर" ${type === 'प्रति लीटर' ? 'selected' : ''}>प्रति लीटर</option>
+                    <option value="प्रति मीटर" ${type === 'प्रति मीटर' ? 'selected' : ''}>प्रति मीटर</option>
+                    <option value="अन्य" ${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? 'selected' : ''}>अन्य</option>
+                </select>
+                <input type="text" class="flex-1 p-2 border border-gray-300 rounded-md custom-type ${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? '' : 'hidden'}" placeholder="कस्टम प्रकार" value="${!['प्रति किलो', 'प्रति नग', 'प्रति दर्जन', 'प्रति पैकेट', 'प्रति लीटर', 'प्रति मीटर'].includes(type) ? type : ''}">
+                <button type="button" class="text-red-500 hover:text-red-700 remove-variant" onclick="removeVariant(this)">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            `;
+            variantsContainer.appendChild(variantDiv);
+            
+            // Add event listener for variant type change
+            const select = variantDiv.querySelector('.variant-type');
+            const customInput = variantDiv.querySelector('.custom-type');
+            
+            select.addEventListener('change', function() {
+                if (this.value === 'अन्य') {
+                    customInput.classList.remove('hidden');
+                } else {
+                    customInput.classList.add('hidden');
+                    customInput.value = '';
+                }
+            });
+        }
+
+        function sendNotice(customerIndex) {
+            const customer = customers[customerIndex];
+            const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            const noticeContent = document.getElementById('noticeContent');
+            noticeContent.innerHTML = `
+                <div class="text-center mb-4">
+                    <h2 class="text-xl font-bold">${shopTitle}</h2>
+                    <p class="text-sm text-gray-600">पेमेंट नोटिस</p>
+                    <p class="text-sm text-gray-600">दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                </div>
+                <div class="border-t border-b border-gray-300 py-4 my-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-medium">ग्राहक का नाम:</span>
+                        <span class="font-bold">${customer.name}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">कुल बकाया राशि:</span>
+                        <span class="font-bold text-red-600 text-xl">₹${Math.round(total)}</span>
+                    </div>
+                </div>
+                <div class="text-center text-sm text-gray-600">
+                    <p>कृपया जल्द से जल्द भुगतान करें।</p>
+                    <p>धन्यवाद!</p>
+                </div>
+            `;
+            
+            document.getElementById('sendNoticeModal').classList.remove('hidden');
+        }
+
+        // Menu Functions
+        function printAllItems() {
+            if (items.length === 0) {
+                alert('कोई वस्तु नहीं मिली');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            let itemsHtml = '';
+            let serialNo = 1;
+            
+            items.forEach(item => {
+                if (item.variants && item.variants.length > 0) {
+                    item.variants.forEach(variant => {
+                        itemsHtml += `
+                            <tr>
+                                <td>${serialNo++}</td>
+                                <td>${item.name}</td>
+                                <td>${variant.type}</td>
+                                <td>₹${variant.price}</td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    // Legacy support
+                    itemsHtml += `
+                        <tr>
+                            <td>${serialNo++}</td>
+                            <td>${item.name}</td>
+                            <td>${item.type || 'सामान्य'}</td>
+                            <td>₹${item.price}</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>सभी वस्तुओं की सूची</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${shopTitle} - वस्तुओं की दर सूची</h1>
+                        <p>दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>क्रम</th>
+                                <th>वस्तु का नाम</th>
+                                <th>प्रकार</th>
+                                <th>दर (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${itemsHtml}
+                        </tbody>
+                    </table>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function printBahikhata() {
+            if (customers.length === 0) {
+                alert('कोई ग्राहक नहीं मिला');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>बहीखाता सारांश</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .total { font-weight: bold; font-size: 18px; margin-top: 20px; text-align: left; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${shopTitle} - बहीखाता सारांश</h1>
+                        <p>दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>क्रम</th>
+                                <th>ग्राहक का नाम</th>
+                                <th>कुल राशि (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${customers.map((customer, index) => {
+                                const total = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+                                return `
+                                    <tr>
+                                        <td>${index + 1}</td>
+                                        <td>${customer.name}</td>
+                                        <td>₹${total.toFixed(2)}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                    <div class="total">
+                        कुल उधारी: ₹${customers.reduce((sum, customer) => {
+                            return sum + customer.transactions.reduce((cSum, t) => cSum + t.amount, 0);
+                        }, 0).toFixed(2)}
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        function printDetailedBahikhata() {
+            if (customers.length === 0) {
+                alert('कोई ग्राहक नहीं मिला');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            let customersHtml = '';
+            let grandTotal = 0;
+
+            customers.forEach(customer => {
+                const customerTotal = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+                grandTotal += customerTotal;
+
+                customersHtml += `
+                    <div class="customer-section">
+                        <h3>ग्राहक: ${customer.name}</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>राशि (₹)</th>
+                                    <th>सामान</th>
+                                    <th>दिनांक व समय</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${customer.transactions.map(t => {
+                                    let itemsDisplay = '';
+                                    if (Array.isArray(t.itemsWithAmounts) && t.itemsWithAmounts.length > 0) {
+                                        itemsDisplay = t.itemsWithAmounts.map(item => `${item.name}${item.amount > 0 ? ` (₹${Math.round(item.amount)})` : ''}`).join(', ');
+                                    } else if (Array.isArray(t.items)) {
+                                        itemsDisplay = t.items.join(', ');
+                                    } else {
+                                        itemsDisplay = t.item || '';
+                                    }
+                                    
+                                    return `
+                                    <tr>
+                                        <td style="text-align: left;">₹${Math.round(t.amount)}</td>
+                                        <td style="text-align: left;">${itemsDisplay}${t.buyer && t.buyer !== customer.name ? ` (${t.buyer})` : ''}</td>
+                                        <td>${new Date(t.date).toLocaleString('hi-IN')}</td>
+                                    </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                        <div class="customer-total" style="text-align: left;">ग्राहक कुल: ₹${Math.round(customerTotal)}</div>
+                    </div>
+                `;
+            });
+
+            printWindow.document.write(`
+                <html>
+                <head>
+                    <title>विस्तृत बहीखाता</title>
+                    <style>
+                        body { font-family: 'Noto Sans Devanagari', Arial, sans-serif; margin: 20px; }
+                        .header { text-align: center; margin-bottom: 20px; }
+                        .customer-section { margin-bottom: 30px; page-break-inside: avoid; }
+                        .customer-section h3 { background-color: #f0f0f0; padding: 10px; margin: 0 0 10px 0; }
+                        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                        th { background-color: #f2f2f2; }
+                        .customer-total { font-weight: bold; text-align: right; margin-bottom: 20px; }
+                        .grand-total { font-weight: bold; font-size: 18px; margin-top: 20px; text-align: center; background-color: #e0e0e0; padding: 15px; }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>${shopTitle} - विस्तृत बहीखाता</h1>
+                        <p>दिनांक: ${new Date().toLocaleDateString('hi-IN')}</p>
+                    </div>
+                    ${customersHtml}
+                    <div class="grand-total" style="text-align: left;">
+                        कुल उधारी: ₹${Math.round(grandTotal)}
+                    </div>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            printWindow.print();
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            initShopTitle();
+            initTheme();
+            initTabs();
+            renderItems();
+            renderCustomers();
+
+            // Menu toggle
+            document.getElementById('menuBtn').addEventListener('click', function() {
+                const dropdown = document.getElementById('menuDropdown');
+                dropdown.classList.toggle('hidden');
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const menu = document.getElementById('menuBtn');
+                const dropdown = document.getElementById('menuDropdown');
+                if (!menu.contains(e.target) && !dropdown.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                }
+                
+                // Close customer menus
+                document.querySelectorAll('[id^="customerMenu"]').forEach(m => {
+                    if (!e.target.closest(`#${m.id}`) && !e.target.closest(`button[onclick*="toggleCustomerMenu"]`)) {
+                        m.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Theme selector
+            document.getElementById('themeSelect').addEventListener('change', function() {
+                applyTheme(this.value);
+            });
+
+            // Menu actions
+            document.getElementById('printAllItems').addEventListener('click', function() {
+                printAllItems();
+                document.getElementById('menuDropdown').classList.add('hidden');
+            });
+            
+            document.getElementById('printBahikhata').addEventListener('click', function() {
+                printBahikhata();
+                document.getElementById('menuDropdown').classList.add('hidden');
+            });
+            
+            document.getElementById('printDetailedBahikhata').addEventListener('click', function() {
+                printDetailedBahikhata();
+                document.getElementById('menuDropdown').classList.add('hidden');
+            });
+            
+            document.getElementById('editTitle').addEventListener('click', function() {
+                editShopTitle();
+                document.getElementById('menuDropdown').classList.add('hidden');
+            });
+
+            // Edit title modal
+            document.getElementById('editTitleForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const newTitle = document.getElementById('newShopTitle').value.trim();
+                if (newTitle) {
+                    shopTitle = newTitle;
+                    localStorage.setItem('shopTitle', shopTitle);
+                    document.getElementById('shopTitle').textContent = shopTitle;
+                    document.getElementById('editTitleModal').classList.add('hidden');
+                }
+            });
+
+            document.getElementById('cancelEditTitle').addEventListener('click', function() {
+                document.getElementById('editTitleModal').classList.add('hidden');
+            });
+
+            // Add item modal
+            document.getElementById('addItemBtn').addEventListener('click', function() {
+                resetItemForm();
+                addVariantRow();
+                document.getElementById('addItemModal').classList.remove('hidden');
+            });
+
+            document.getElementById('cancelAddItem').addEventListener('click', function() {
+                document.getElementById('addItemModal').classList.add('hidden');
+                resetItemForm();
+            });
+
+            // Send Notice modal
+            document.getElementById('cancelNotice').addEventListener('click', function() {
+                document.getElementById('sendNoticeModal').classList.add('hidden');
+            });
+
+            document.getElementById('printNotice').addEventListener('click', function() {
+                const noticeContent = document.getElementById('noticeContent').innerHTML;
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>पेमेंट नोटिस</title>
+                        <style>
+                            @page {
+                                size: A4;
+                                margin: 15mm;
+                            }
+                            body { 
+                                font-family: 'Noto Sans Devanagari', Arial, sans-serif; 
+                                margin: 0;
+                                padding: 0;
+                                width: 100%;
+                                height: 100vh;
+                                background: white;
+                                color: black;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                            }
+                            .notice-container {
+                                width: 160mm;
+                                max-width: 160mm;
+                                padding: 40px;
+                                border: 3px solid #333;
+                                border-radius: 12px;
+                                background: white;
+                                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                            }
+                            .text-center { text-align: center; }
+                            .text-xl { font-size: 1.8rem; line-height: 1.4; }
+                            .text-lg { font-size: 1.4rem; line-height: 1.3; }
+                            .text-sm { font-size: 1rem; line-height: 1.2; }
+                            .font-bold { font-weight: bold; }
+                            .font-medium { font-weight: 500; }
+                            .mb-4 { margin-bottom: 1.5rem; }
+                            .mb-2 { margin-bottom: 0.8rem; }
+                            .my-4 { margin-top: 1.5rem; margin-bottom: 1.5rem; }
+                            .py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+                            .border-t { border-top: 2px solid #333; }
+                            .border-b { border-bottom: 2px solid #333; }
+                            .text-gray-600 { color: #555; }
+                            .text-red-600 { color: #dc2626; font-size: 1.6rem; }
+                            .flex { display: flex; }
+                            .justify-between { justify-content: space-between; }
+                            .items-center { align-items: center; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="notice-container">
+                            ${noticeContent}
+                        </div>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            });
+
+            document.getElementById('saveNoticeImage').addEventListener('click', function() {
+                // Get the notice content
+                const noticeContent = document.getElementById('noticeContent');
+                
+                // Create a high-quality canvas
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Set high resolution canvas size (A4 proportions)
+                const scale = 3; // For high quality
+                canvas.width = 600 * scale;
+                canvas.height = 800 * scale;
+                ctx.scale(scale, scale);
+                
+                // Fill white background
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, 600, 800);
+                
+                // Draw border
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(30, 50, 540, 700);
+                
+                // Set text properties
+                ctx.fillStyle = 'black';
+                ctx.textAlign = 'center';
+                
+                // Shop title
+                ctx.font = 'bold 28px Arial';
+                ctx.fillText(shopTitle, 300, 120);
+                
+                // Notice title
+                ctx.font = '18px Arial';
+                ctx.fillStyle = '#666';
+                ctx.fillText('पेमेंट नोटिस', 300, 150);
+                
+                // Date
+                ctx.font = '16px Arial';
+                ctx.fillText(`दिनांक: ${new Date().toLocaleDateString('hi-IN')}`, 300, 180);
+                
+                // Extract customer name and amount from notice content
+                const customerNameMatch = noticeContent.innerHTML.match(/ग्राहक का नाम:<\/span>\s*<span[^>]*>([^<]+)<\/span>/);
+                const amountMatch = noticeContent.innerHTML.match(/कुल बकाया राशि:<\/span>\s*<span[^>]*>([^<]+)<\/span>/);
+                
+                const customerName = customerNameMatch ? customerNameMatch[1] : 'N/A';
+                const amount = amountMatch ? amountMatch[1] : '₹0';
+                
+                // Draw horizontal line
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(80, 220);
+                ctx.lineTo(520, 220);
+                ctx.stroke();
+                
+                // Customer details
+                ctx.fillStyle = 'black';
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('ग्राहक का नाम:', 80, 270);
+                ctx.font = 'bold 22px Arial';
+                ctx.textAlign = 'right';
+                ctx.fillText(customerName, 520, 270);
+                
+                ctx.font = '20px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('कुल बकाया राशि:', 80, 320);
+                ctx.font = 'bold 32px Arial';
+                ctx.fillStyle = '#dc2626';
+                ctx.textAlign = 'right';
+                ctx.fillText(amount, 520, 320);
+                
+                // Draw horizontal line
+                ctx.strokeStyle = '#333';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(80, 350);
+                ctx.lineTo(520, 350);
+                ctx.stroke();
+                
+                // Footer message
+                ctx.fillStyle = '#666';
+                ctx.font = '18px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('कृपया जल्द से जल्द भुगतान करें।', 300, 420);
+                ctx.fillText('धन्यवाद!', 300, 450);
+                
+                // Convert to blob and download
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `payment-notice-${customerName.replace(/\s+/g, '-')}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                }, 'image/png', 1.0);
+            });
+
+            document.getElementById('addItemForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('itemName').value.trim();
+                
+                if (!name) {
+                    alert('वस्तु का नाम जरूरी है');
+                    return;
+                }
+                
+                // Collect all variants
+                const variants = [];
+                const variantElements = document.querySelectorAll('.price-variant');
+                
+                variantElements.forEach(element => {
+                    const priceInput = element.querySelector('.variant-price');
+                    const typeSelect = element.querySelector('.variant-type');
+                    const customInput = element.querySelector('.custom-type');
+                    
+                    let type = typeSelect.value;
+                    if (type === 'अन्य' && customInput.value.trim()) {
+                        type = customInput.value.trim();
+                    }
+                    
+                    const price = parseFloat(priceInput.value);
+                    
+                    if (type && price > 0) {
+                        variants.push({ type, price: Math.round(price) });
+                    }
+                });
+
+                // If no variants with price, create one with just type
+                if (variants.length === 0) {
+                    const firstVariant = variantElements[0];
+                    if (firstVariant) {
+                        const typeSelect = firstVariant.querySelector('.variant-type');
+                        const customInput = firstVariant.querySelector('.custom-type');
+                        
+                        let type = typeSelect.value;
+                        if (type === 'अन्य' && customInput.value.trim()) {
+                            type = customInput.value.trim();
+                        }
+                        
+                        variants.push({ type, price: 0 });
+                    }
+                }
+
+                const itemData = { 
+                    name, 
+                    variants,
+                    dateAdded: editingItemIndex !== null ? items[editingItemIndex].dateAdded : new Date().toISOString()
+                };
+
+                if (editingItemIndex !== null) {
+                    items[editingItemIndex] = itemData;
+                } else {
+                    items.push(itemData);
+                }
+
+                saveItems();
+                renderItems();
+                document.getElementById('addItemModal').classList.add('hidden');
+                resetItemForm();
+            });
+
+            // Add variant button
+            document.getElementById('addVariant').addEventListener('click', function() {
+                addVariantRow();
+            });
+
+            // Add customer modal
+            document.getElementById('addCustomerBtn').addEventListener('click', function() {
+                document.getElementById('addCustomerModal').classList.remove('hidden');
+            });
+
+            document.getElementById('cancelAddCustomer').addEventListener('click', function() {
+                document.getElementById('addCustomerModal').classList.add('hidden');
+                document.getElementById('addCustomerForm').reset();
+            });
+
+            document.getElementById('addCustomerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const name = document.getElementById('customerName').value.trim();
+
+                if (name) {
+                    customers.push({ 
+                        name, 
+                        transactions: [],
+                        dateAdded: new Date().toISOString(),
+                        lastUpdated: new Date().toISOString()
+                    });
+                    saveCustomers();
+                    renderCustomers();
+                    document.getElementById('addCustomerModal').classList.add('hidden');
+                    this.reset();
+                }
+            });
+
+            // Add transaction modal
+            document.getElementById('cancelAddTransaction').addEventListener('click', function() {
+                document.getElementById('addTransactionModal').classList.add('hidden');
+            });
+
+            document.getElementById('addTransactionForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const buyerName = document.getElementById('buyerName').value.trim() || customers[currentCustomerId].name;
+                const transactionItems = document.querySelectorAll('.transaction-item');
+                
+                // Collect all items and amounts for a single transaction
+                const allItemsWithAmounts = [];
+                let totalTransactionAmount = 0;
+                
+                transactionItems.forEach(item => {
+                    const mainItemName = item.querySelector('.item-name').value.trim();
+                    const mainAmount = parseFloat(item.querySelector('.item-amount').value) || 0;
+                    
+                    if (mainItemName) {
+                        if (mainAmount > 0) {
+                            allItemsWithAmounts.push({ name: mainItemName, amount: mainAmount });
+                            totalTransactionAmount += mainAmount;
+                        } else {
+                            // If no amount specified, add item without amount
+                            allItemsWithAmounts.push({ name: mainItemName, amount: 0 });
+                        }
+                    }
+                    
+                    // Collect additional items
+                    const additionalItems = item.querySelectorAll('.additional-item');
+                    additionalItems.forEach(additionalItem => {
+                        const additionalName = additionalItem.querySelector('.additional-item-name').value.trim();
+                        const additionalAmount = parseFloat(additionalItem.querySelector('.additional-item-amount').value) || 0;
+                        
+                        if (additionalName) {
+                            allItemsWithAmounts.push({ name: additionalName, amount: additionalAmount });
+                            totalTransactionAmount += additionalAmount;
+                        }
+                    });
+                });
+                
+                if (allItemsWithAmounts.length > 0) {
+                    const transaction = {
+                        itemsWithAmounts: allItemsWithAmounts,
+                        items: allItemsWithAmounts.map(item => item.name), // For backward compatibility
+                        item: allItemsWithAmounts.map(item => item.name).join(', '), // For backward compatibility
+                        amount: Math.round(totalTransactionAmount),
+                        buyer: buyerName,
+                        date: new Date().toISOString()
+                    };
+                    
+                    customers[currentCustomerId].transactions.push(transaction);
+                    
+                    // Update customer's last updated time
+                    customers[currentCustomerId].lastUpdated = new Date().toISOString();
+                    
+                    saveCustomers();
+                    renderCustomers();
+                    document.getElementById('addTransactionModal').classList.add('hidden');
+                }
+            });
+
+            // Search functionality for items
+            document.getElementById('searchItemBtn').addEventListener('click', function() {
+                const container = document.getElementById('itemSearchContainer');
+                const input = document.getElementById('itemSearchInput');
+                container.classList.toggle('hidden');
+                if (!container.classList.contains('hidden')) {
+                    input.focus();
+                } else {
+                    input.value = '';
+                    filteredItems = [];
+                    renderItems();
+                }
+            });
+
+            document.getElementById('itemSearchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                if (searchTerm) {
+                    filteredItems = items.filter(item => 
+                        item.name.toLowerCase().includes(searchTerm) ||
+                        (item.variants && item.variants.some(v => v.type.toLowerCase().includes(searchTerm)))
+                    );
+                } else {
+                    filteredItems = [];
+                }
+                renderItems();
+            });
+
+            // Search functionality for customers
+            document.getElementById('searchCustomerBtn').addEventListener('click', function() {
+                const container = document.getElementById('customerSearchContainer');
+                const input = document.getElementById('customerSearchInput');
+                container.classList.toggle('hidden');
+                if (!container.classList.contains('hidden')) {
+                    input.focus();
+                } else {
+                    input.value = '';
+                    filteredCustomers = [];
+                    renderCustomers();
+                }
+            });
+
+            document.getElementById('customerSearchInput').addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                if (searchTerm) {
+                    filteredCustomers = customers.filter(customer => 
+                        customer.name.toLowerCase().includes(searchTerm)
+                    );
+                } else {
+                    filteredCustomers = [];
+                }
+                renderCustomers();
+            });
+
+            // Sort button functionality
+            document.getElementById('sortItemBtn').addEventListener('click', function() {
+                const select = document.getElementById('itemSortOrder');
+                select.classList.toggle('hidden');
+            });
+
+            document.getElementById('sortCustomerBtn').addEventListener('click', function() {
+                const select = document.getElementById('customerSortOrder');
+                select.classList.toggle('hidden');
+            });
+
+            // Calculator history modal
+            document.getElementById('closeCalcHistory').addEventListener('click', function() {
+                document.getElementById('calcHistoryModal').classList.add('hidden');
+            });
+
+            document.getElementById('clearCalcHistory').addEventListener('click', clearCalcHistory);
+
+            // Sort order change listeners
+            document.getElementById('itemSortOrder').addEventListener('change', function() {
+                this.classList.add('hidden');
+                renderItems();
+            });
+            
+            document.getElementById('customerSortOrder').addEventListener('change', function() {
+                this.classList.add('hidden');
+                renderCustomers();
+            });
+
+            // Calculator customer input
+            document.getElementById('calcCustomerInput').addEventListener('input', function() {
+                const dropdown = document.getElementById('calcCustomerDropdown');
+                const value = this.value.toLowerCase();
+                
+                if (value) {
+                    dropdown.classList.remove('hidden');
+                    const options = dropdown.querySelectorAll('div');
+                    options.forEach(option => {
+                        if (option.textContent.toLowerCase().includes(value)) {
+                            option.style.display = 'block';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+                } else {
+                    dropdown.classList.add('hidden');
+                }
+            });
+
+            document.getElementById('calcCustomerInput').addEventListener('focus', function() {
+                if (customers.length > 0) {
+                    document.getElementById('calcCustomerDropdown').classList.remove('hidden');
+                }
+            });
+
+            // Payment modal
+            document.getElementById('cancelAddPayment').addEventListener('click', function() {
+                document.getElementById('addPaymentModal').classList.add('hidden');
+            });
+
+            document.getElementById('payFullAmount').addEventListener('click', function() {
+                const totalDueText = document.getElementById('totalDueAmount').value;
+                const totalDue = parseFloat(totalDueText.replace('₹', ''));
+                document.getElementById('paymentAmount').value = totalDue;
+            });
+
+            document.getElementById('addPaymentForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const customerIndex = parseInt(this.dataset.customerIndex);
+                const paymentAmount = Math.round(parseFloat(document.getElementById('paymentAmount').value));
+                
+                if (paymentAmount > 0) {
+                    const customer = customers[customerIndex];
+                    const totalDueBefore = customer.transactions.reduce((sum, t) => sum + t.amount, 0);
+                    const remainingAmount = Math.max(0, totalDueBefore - paymentAmount);
+                    
+                    // Add payment transaction (negative amount to reduce debt)
+                    const paymentTransaction = {
+                        itemsWithAmounts: [{ name: 'जमा राशि', amount: -paymentAmount }],
+                        items: ['जमा राशि'],
+                        item: 'जमा राशि',
+                        amount: -paymentAmount,
+                        type: 'payment',
+                        buyer: customer.name,
+                        date: new Date().toISOString(),
+                        remainingAmount: remainingAmount
+                    };
+                    
+                    customer.transactions.push(paymentTransaction);
+                    customer.lastUpdated = new Date().toISOString();
+                    
+                    saveCustomers();
+                    renderCustomers();
+                    
+                    document.getElementById('addPaymentModal').classList.add('hidden');
+                    
+                    if (remainingAmount === 0) {
+                        alert('पूरी राशि जमा हो गई! अब कोई बकाया नहीं है।');
+                    } else {
+                        alert(`₹${paymentAmount} जमा हो गया! बाकी राशि: ₹${remainingAmount}`);
+                    }
+                }
+            });
+
+            // Calculator to Bahikhata modal
+            document.getElementById('cancelCalcToBahikhata').addEventListener('click', function() {
+                document.getElementById('calcToBahikhataModal').classList.add('hidden');
+            });
+
+            document.getElementById('calcToBahikhataForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const customerName = document.getElementById('calcCustomerInput').value.trim();
+                const amount = Math.round(parseFloat(document.getElementById('calcAmount').value));
+                const description = document.getElementById('calcItemDescription').value.trim() || 'कैलकुलेटर से जोड़ा गया';
+                
+                if (customerName && amount > 0) {
+                    // Find existing customer or create new one
+                    let customerIndex = customers.findIndex(c => c.name === customerName);
+                    
+                    if (customerIndex === -1) {
+                        // Create new customer
+                        customers.push({
+                            name: customerName,
+                            transactions: [],
+                            dateAdded: new Date().toISOString(),
+                            lastUpdated: new Date().toISOString()
+                        });
+                        customerIndex = customers.length - 1;
+                    } else {
+                        // Update existing customer's last updated time
+                        customers[customerIndex].lastUpdated = new Date().toISOString();
+                    }
+                    
+                    const transaction = {
+                        itemsWithAmounts: [{ name: description, amount: amount }],
+                        items: [description], // For backward compatibility
+                        item: description, // For backward compatibility
+                        amount: amount,
+                        buyer: customerName,
+                        date: new Date().toISOString()
+                    };
+                    
+                    customers[customerIndex].transactions.push(transaction);
+                    
+                    // Add to calculator history
+                    calcHistory.push({
+                        customerName: customerName,
+                        amount: amount,
+                        description: description,
+                        date: new Date().toISOString()
+                    });
+                    
+                    saveCustomers();
+                    saveCalcHistory();
+                    renderCustomers();
+                    
+                    document.getElementById('calcToBahikhataModal').classList.add('hidden');
+                    document.getElementById('calcItemDescription').value = '';
+                    document.getElementById('calcCustomerInput').value = '';
+                    
+                    alert('राशि सफलतापूर्वक बहीखाता में जोड़ दी गई!');
+                }
+            });
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96df3f6284464284',t:'MTc1NDk5NDEwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96c9bf9dd319c795',t:'MTc1NDc2ODY3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
