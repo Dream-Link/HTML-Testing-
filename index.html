@@ -1,300 +1,948 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compact HTML Tester</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>HTML Tester - Mobile</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        * {
             margin: 0;
             padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f0f2f5;
-        }
-        .main-container {
-            width: 100%;
-            max-width: 800px;
-            padding: 15px;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
         }
-        .editor-section, .history-section {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        textarea {
-            width: 100%;
-            height: 200px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            resize: none;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            gap: 10px;
-        }
-        button {
-            flex: 1;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 14px;
-            color: white;
-            transition: background-color 0.2s ease;
-        }
-        #pasteBtn { background-color: #007bff; }
-        #removeBtn { background-color: #dc3545; }
-        #testBtn { background-color: #28a745; }
-        #pasteBtn:hover { background-color: #0056b3; }
-        #removeBtn:hover { background-color: #c82333; }
-        #testBtn:hover { background-color: #218838; }
 
-        .history-list {
-            list-style-type: none;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
             padding: 0;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            gap: 10px;
         }
-        .history-item {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 12px 8px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: white;
+            color: #4facfe;
+            border-bottom: 2px solid #4facfe;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 15px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .live-mode {
+            display: flex !important;
+            flex-direction: row;
+            gap: 10px;
+            height: calc(100vh - 200px);
+        }
+
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .editor-container {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .code-editor {
+            position: relative;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .highlighted-code {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            overflow: auto;
+            pointer-events: none;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            z-index: 1;
+        }
+
+        .html-tag { color: #569cd6; }
+        .html-attribute { color: #92c5f8; }
+        .html-string { color: #ce9178; }
+        .html-comment { color: #6a9955; font-style: italic; opacity: 0.7; font-size: 0.9em; }
+        .html-doctype { color: #c586c0; }
+        .css-property { color: #9cdcfe; }
+        .css-value { color: #ce9178; }
+        .css-selector { color: #d7ba7d; }
+        .js-keyword { color: #569cd6; }
+        .js-string { color: #ce9178; }
+        .js-function { color: #dcdcaa; }
+        .guide-hint { 
+            color: #6a9955; 
+            opacity: 0.7; 
+            font-size: 0.8em; 
+            font-style: italic; 
+            margin-left: 15px;
+            background: rgba(106, 153, 85, 0.1);
+            padding: 2px 6px;
+            border-radius: 3px;
+            border-left: 2px solid #6a9955;
+        }
+
+        #htmlEditor {
+            width: 100%;
+            flex: 1;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            transition: border-color 0.3s ease;
+            background: transparent;
+            color: transparent;
+            line-height: 1.5;
+            z-index: 2;
+            caret-color: #4facfe;
+        }
+
+        #htmlEditor:focus {
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .preview-frame {
+            width: 100%;
+            flex: 1;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+            min-width: 80px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(86, 171, 47, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .saved-files {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .file-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border: 1px solid #e9ecef;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4facfe;
         }
-        .history-item span {
-            cursor: pointer;
-            flex-grow: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+
+        .file-name {
+            font-weight: 500;
             color: #495057;
+            flex: 1;
+            margin-right: 10px;
         }
-        .history-buttons {
+
+        .file-actions {
             display: flex;
             gap: 5px;
         }
-        .history-buttons button {
-            flex: none;
-            padding: 8px 10px;
-            font-size: 12px;
+
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            min-width: auto;
         }
-        .history-buttons .download-btn { background-color: #17a2b8; }
-        .history-buttons .edit-btn { background-color: #ffc107; }
-        .history-buttons .remove-btn { background-color: #dc3545; }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            padding: 40px 20px;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        .code-guide {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .code-guide h4 {
+            margin: 0 0 8px 0;
+            color: #495057;
+            font-size: 1rem;
+        }
+
+        .guide-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .guide-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: #6c757d;
+            background: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid #e9ecef;
+        }
+
+        .color-box {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 6px;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .html-tag-color { background: #569cd6; }
+        .html-attr-color { background: #92c5f8; }
+        .html-string-color { background: #ce9178; }
+        .css-prop-color { background: #9cdcfe; }
+        .comment-color { background: #6a9955; }
+
+        @media (max-width: 480px) {
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                flex: none;
+            }
+            
+            .file-actions {
+                flex-direction: column;
+                gap: 3px;
+            }
+
+            .guide-items {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .guide-item {
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="main-container">
-        <h1>HTML Tester</h1>
-        
-        <div class="editor-section">
-            <textarea id="htmlCode" placeholder="Paste your HTML code here..."></textarea>
-            <div class="button-group">
-                <button id="pasteBtn">Paste</button>
-                <button id="removeBtn">Remove</button>
-                <button id="testBtn">Test</button>
+    <div class="container">
+        <div class="header">
+            <h1>📱 HTML Tester</h1>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('editor')">✏️ Editor</button>
+            <button class="tab" onclick="switchTab('preview')">👁️ Preview</button>
+            <button class="tab" onclick="switchTab('saved')">💾 Saved</button>
+        </div>
+
+        <div id="editor" class="tab-content active">
+            <div class="controls">
+                <button class="btn btn-primary" onclick="toggleLiveMode()">👁️ Live Mode</button>
+                <button class="btn btn-success" onclick="saveFile()">💾 Save</button>
+                <button class="btn btn-warning" onclick="clearEditor()">🗑️ Clear</button>
+            </div>
+            <div class="editor-panel">
+
+                <div class="editor-container">
+                    <div class="code-editor">
+                        <div id="highlightedCode" class="highlighted-code"></div>
+                        <textarea id="htmlEditor" placeholder="यहाँ अपना HTML code paste करें..."><!DOCTYPE html>
+<html>
+<head>
+    <title>Test Page</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            font-size: 2em;
+        }
+        p {
+            font-size: 1.2em;
+            margin: 15px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1.1em;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #ff5252;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hello World! 🌍</h1>
+        <p>यह एक test HTML page है।</p>
+        <button onclick="alert('Button clicked!')">Click Me</button>
+    </div>
+</body>
+</html></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="preview-panel" id="livePreviewPanel" style="display: none;">
+                <h4 style="margin: 0 0 10px 0; color: #495057;">🔴 Live Preview</h4>
+                <iframe id="livePreviewFrame" class="preview-frame"></iframe>
             </div>
         </div>
-        
-        <div class="history-section">
-            <h2>Saved HTML History</h2>
-            <ul id="historyList" class="history-list">
-                </ul>
+
+        <div id="preview" class="tab-content">
+            <div class="controls">
+                <button class="btn btn-primary" onclick="updatePreview()">🔄 Refresh</button>
+                <button class="btn btn-success" onclick="downloadCurrentHTML()">⬇️ Download</button>
+            </div>
+            <iframe id="previewFrame" class="preview-frame"></iframe>
+        </div>
+
+        <div id="saved" class="tab-content">
+            <div class="controls">
+                <button class="btn btn-warning" onclick="clearAllSaved()">🗑️ Clear All</button>
+            </div>
+            <div id="savedFilesList" class="saved-files">
+                <div class="empty-state">
+                    <div>📁</div>
+                    <p>कोई saved files नहीं हैं</p>
+                </div>
+            </div>
         </div>
     </div>
 
+    <div id="toast" class="toast"></div>
+
     <script>
-        const htmlCodeTextarea = document.getElementById('htmlCode');
-        const pasteBtn = document.getElementById('pasteBtn');
-        const removeBtn = document.getElementById('removeBtn');
-        const testBtn = document.getElementById('testBtn');
-        const historyList = document.getElementById('historyList');
+        let savedFiles = JSON.parse(localStorage.getItem('htmlTesterFiles') || '[]');
+        let currentFileName = '';
+        let isLiveMode = false;
 
-        // Function to extract title from HTML
-        function getTitleFromHtml(html) {
-            const match = html.match(/<title>(.*?)<\/title>/i);
-            return match && match[1] ? match[1] : 'Untitled';
-        }
+        function highlightSyntax(code) {
+            let highlighted = code
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/(&lt;\/?)([\w-]+)/g, '<span class="html-tag">$1$2</span>')
+                .replace(/([\w-]+)=("[^"]*")/g, '<span class="html-attribute">$1</span>=<span class="html-string">$2</span>')
+                .replace(/(&lt;!--.*?--&gt;)/g, '<span class="html-comment">$1</span>')
+                .replace(/(&lt;!DOCTYPE[^&]*&gt;)/g, '<span class="html-doctype">$1</span>')
+                .replace(/(style|color|background|font-family|padding|margin|width|height|display|position|border|border-radius):/g, '<span class="css-property">$1</span>:')
+                .replace(/:\s*([^;}\n]+)/g, ': <span class="css-value">$1</span>')
+                .replace(/(function|var|let|const|if|else|for|while|return)/g, '<span class="js-keyword">$1</span>')
+                .replace(/(onclick|onload|addEventListener)/g, '<span class="js-function">$1</span>');
 
-        // Function to load history from local storage
-        function loadHistory() {
-            const savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
-            historyList.innerHTML = '';
-            savedHistory.forEach((item, index) => {
-                const listItem = document.createElement('li');
-                listItem.classList.add('history-item');
+            // Add line-ending Hindi guides
+            const lines = highlighted.split('\n');
+            highlighted = lines.map(line => {
+                let guidedLine = line;
                 
-                const codeSpan = document.createElement('span');
-                codeSpan.textContent = item.title;
-                
-                const buttonContainer = document.createElement('div');
-                buttonContainer.classList.add('history-buttons');
-
-                const editBtn = document.createElement('button');
-                editBtn.classList.add('edit-btn');
-                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
-                editBtn.title = 'Edit HTML';
-                editBtn.onclick = () => {
-                    htmlCodeTextarea.value = item.code;
-                    // Scroll to the top of the page to see the editor
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                };
-
-                const downloadBtn = document.createElement('button');
-                downloadBtn.classList.add('download-btn');
-                downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
-                downloadBtn.title = 'Download as index.html';
-                downloadBtn.onclick = () => downloadCode(item.code);
-
-                const removeBtn = document.createElement('button');
-                removeBtn.classList.add('remove-btn');
-                removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                removeBtn.title = 'Remove from history';
-                removeBtn.onclick = () => {
-                    removeCode(index);
-                };
-
-                buttonContainer.appendChild(editBtn);
-                buttonContainer.appendChild(downloadBtn);
-                buttonContainer.appendChild(removeBtn);
-
-                listItem.appendChild(codeSpan);
-                listItem.appendChild(buttonContainer);
-                historyList.appendChild(listItem);
-            });
-        }
-
-        // Function to remove a code entry from history
-        function removeCode(indexToRemove) {
-            let savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
-            savedHistory.splice(indexToRemove, 1);
-            localStorage.setItem('htmlHistory', JSON.stringify(savedHistory));
-            loadHistory();
-        }
-
-        // Function to save code to local storage
-        function saveCode(html) {
-            const savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
-            const title = getTitleFromHtml(html);
-            savedHistory.unshift({ code: html, title: title }); 
-            localStorage.setItem('htmlHistory', JSON.stringify(savedHistory.slice(0, 10)));
-            loadHistory();
-        }
-        
-        // Function to download the code
-        function downloadCode(html) {
-            const a = document.createElement('a');
-            const file = new Blob([html], { type: 'text/html' });
-            a.href = URL.createObjectURL(file);
-            a.download = 'index.html';
-            a.click();
-        }
-
-        // Function to handle the test button logic
-        function testHtmlCode() {
-            const code = htmlCodeTextarea.value;
-            if (code) {
-                saveCode(code); // Save code to history
-                
-                const newWindow = window.open('', '_blank', 'width=800,height=600');
-                if (newWindow) {
-                    newWindow.document.open();
-                    newWindow.document.write(`
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <meta charset="UTF-8">
-                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                            <title>Preview</title>
-                            <style>
-                                body {
-                                    font-family: Arial, sans-serif;
-                                    margin: 0;
-                                }
-                                #toggleViewBtn {
-                                    position: fixed;
-                                    bottom: 20px;
-                                    right: 20px;
-                                    padding: 10px 15px;
-                                    border: none;
-                                    border-radius: 5px;
-                                    background-color: #007bff;
-                                    color: white;
-                                    cursor: pointer;
-                                    z-index: 1000;
-                                }
-                                body.desktop-view {
-                                    width: 1024px;
-                                    margin: 0 auto;
-                                    border: 1px solid #ccc;
-                                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                                }
-                            </style>
-                        </head>
-                        <body>
-                            ${code}
-                            <button id="toggleViewBtn">Switch to Desktop View</button>
-                            <script>
-                                const toggleViewBtn = document.getElementById('toggleViewBtn');
-                                toggleViewBtn.addEventListener('click', () => {
-                                    document.body.classList.toggle('desktop-view');
-                                    if (document.body.classList.contains('desktop-view')) {
-                                        toggleViewBtn.textContent = 'Switch to Mobile View';
-                                    } else {
-                                        toggleViewBtn.textContent = 'Switch to Desktop View';
-                                    }
-                                });
-                            <\/script>
-                        </body>
-                        </html>
-                    `);
-                    newWindow.document.close();
+                // HTML Tags
+                if (line.includes('&lt;!DOCTYPE html&gt;')) {
+                    guidedLine += '<span class="guide-hint">← HTML5 दस्तावेज़ की घोषणा - ब्राउज़र को बताता है कि यह HTML5 है</span>';
+                } else if (line.includes('&lt;html&gt;')) {
+                    guidedLine += '<span class="guide-hint">← मुख्य HTML टैग - पूरा webpage इसके अंदर होता है</span>';
+                } else if (line.includes('&lt;head&gt;')) {
+                    guidedLine += '<span class="guide-hint">← Head सेक्शन - पेज की जानकारी, title, CSS यहाँ होता है</span>';
+                } else if (line.includes('&lt;title&gt;')) {
+                    guidedLine += '<span class="guide-hint">← पेज का शीर्षक - ब्राउज़र टैब में दिखता है</span>';
+                } else if (line.includes('&lt;style&gt;')) {
+                    guidedLine += '<span class="guide-hint">← CSS स्टाइल शुरू - यहाँ design और colors लिखते हैं</span>';
+                } else if (line.includes('&lt;/style&gt;')) {
+                    guidedLine += '<span class="guide-hint">← CSS स्टाइल खत्म</span>';
+                } else if (line.includes('&lt;body&gt;')) {
+                    guidedLine += '<span class="guide-hint">← Body सेक्शन - पेज का मुख्य भाग, यहाँ content दिखता है</span>';
+                } else if (line.includes('&lt;h1&gt;')) {
+                    guidedLine += '<span class="guide-hint">← मुख्य शीर्षक (H1) - सबसे बड़ा heading</span>';
+                } else if (line.includes('&lt;h2&gt;')) {
+                    guidedLine += '<span class="guide-hint">← उप-शीर्षक (H2) - दूसरा सबसे बड़ा heading</span>';
+                } else if (line.includes('&lt;p&gt;')) {
+                    guidedLine += '<span class="guide-hint">← पैराग्राफ - सामान्य text के लिए</span>';
+                } else if (line.includes('&lt;div')) {
+                    guidedLine += '<span class="guide-hint">← Div कंटेनर - elements को group करने के लिए</span>';
+                } else if (line.includes('&lt;button')) {
+                    guidedLine += '<span class="guide-hint">← Button - click करने के लिए</span>';
+                } else if (line.includes('&lt;img')) {
+                    guidedLine += '<span class="guide-hint">← Image - तस्वीर दिखाने के लिए</span>';
+                } else if (line.includes('&lt;a ')) {
+                    guidedLine += '<span class="guide-hint">← Link - दूसरे page पर जाने के लिए</span>';
                 }
+                
+                // CSS Properties
+                else if (line.includes('body {')) {
+                    guidedLine += '<span class="guide-hint">← Body का स्टाइल - पूरे page का basic design</span>';
+                } else if (line.includes('.container {')) {
+                    guidedLine += '<span class="guide-hint">← Container का स्टाइल - main content box</span>';
+                } else if (line.includes('h1 {')) {
+                    guidedLine += '<span class="guide-hint">← H1 का स्टाइल - मुख्य शीर्षक की styling</span>';
+                } else if (line.includes('p {')) {
+                    guidedLine += '<span class="guide-hint">← Paragraph का स्टाइल - text की styling</span>';
+                } else if (line.includes('button {')) {
+                    guidedLine += '<span class="guide-hint">← Button का स्टाइल - button की design</span>';
+                } else if (line.includes('background:')) {
+                    guidedLine += '<span class="guide-hint">← Background - पीछे का रंग या image</span>';
+                } else if (line.includes('color:')) {
+                    guidedLine += '<span class="guide-hint">← Color - text का रंग</span>';
+                } else if (line.includes('padding:')) {
+                    guidedLine += '<span class="guide-hint">← Padding - element के अंदर की space</span>';
+                } else if (line.includes('margin:')) {
+                    guidedLine += '<span class="guide-hint">← Margin - element के बाहर की space</span>';
+                } else if (line.includes('font-size:')) {
+                    guidedLine += '<span class="guide-hint">← Font Size - text का size</span>';
+                } else if (line.includes('font-family:')) {
+                    guidedLine += '<span class="guide-hint">← Font Family - text का style/font</span>';
+                } else if (line.includes('border-radius:')) {
+                    guidedLine += '<span class="guide-hint">← Border Radius - गोल कोने बनाने के लिए</span>';
+                } else if (line.includes('border:')) {
+                    guidedLine += '<span class="guide-hint">← Border - element के चारों ओर line</span>';
+                } else if (line.includes('width:')) {
+                    guidedLine += '<span class="guide-hint">← Width - element की चौड़ाई</span>';
+                } else if (line.includes('height:')) {
+                    guidedLine += '<span class="guide-hint">← Height - element की ऊंचाई</span>';
+                } else if (line.includes('display:')) {
+                    guidedLine += '<span class="guide-hint">← Display - element कैसे दिखेगा (block, inline, flex)</span>';
+                } else if (line.includes('position:')) {
+                    guidedLine += '<span class="guide-hint">← Position - element की जगह (relative, absolute, fixed)</span>';
+                } else if (line.includes('text-align:')) {
+                    guidedLine += '<span class="guide-hint">← Text Align - text की alignment (left, center, right)</span>';
+                } else if (line.includes('cursor:')) {
+                    guidedLine += '<span class="guide-hint">← Cursor - माउस pointer का style</span>';
+                } else if (line.includes('linear-gradient')) {
+                    guidedLine += '<span class="guide-hint">← Linear Gradient - दो या ज्यादा रंगों का smooth blend</span>';
+                } else if (line.includes('rgba(')) {
+                    guidedLine += '<span class="guide-hint">← RGBA - पारदर्शी रंग (Red, Green, Blue, Alpha)</span>';
+                } else if (line.includes('backdrop-filter:')) {
+                    guidedLine += '<span class="guide-hint">← Backdrop Filter - पीछे के content पर blur effect</span>';
+                } else if (line.includes(':hover')) {
+                    guidedLine += '<span class="guide-hint">← Hover Effect - माउस के ऊपर आने पर style change</span>';
+                } else if (line.includes('onclick=')) {
+                    guidedLine += '<span class="guide-hint">← OnClick Event - click करने पर JavaScript function चलता है</span>';
+                }
+                
+                return guidedLine;
+            }).join('\n');
+
+            return highlighted;
+        }
+
+
+
+        function updateSyntaxHighlighting() {
+            const editor = document.getElementById('htmlEditor');
+            const highlighted = document.getElementById('highlightedCode');
+            const code = editor.value;
+            
+            highlighted.innerHTML = highlightSyntax(code);
+            
+            highlighted.scrollTop = editor.scrollTop;
+            highlighted.scrollLeft = editor.scrollLeft;
+        }
+
+        function toggleLiveMode() {
+            const editorTab = document.getElementById('editor');
+            const livePreviewPanel = document.getElementById('livePreviewPanel');
+            const button = event.target;
+            
+            isLiveMode = !isLiveMode;
+            
+            if (isLiveMode) {
+                editorTab.classList.add('live-mode');
+                livePreviewPanel.style.display = 'flex';
+                button.textContent = '📝 Edit Mode';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-warning');
+                updateLivePreview();
+            } else {
+                editorTab.classList.remove('live-mode');
+                livePreviewPanel.style.display = 'none';
+                button.textContent = '👁️ Live Mode';
+                button.classList.remove('btn-warning');
+                button.classList.add('btn-primary');
             }
         }
 
-        // Event Listeners
-        pasteBtn.addEventListener('click', async () => {
-            try {
-                const text = await navigator.clipboard.readText();
-                htmlCodeTextarea.value = text;
-            } catch (err) {
-                console.error('Failed to read clipboard contents: ', err);
+        function updateLivePreview() {
+            if (isLiveMode) {
+                const htmlCode = document.getElementById('htmlEditor').value;
+                const livePreviewFrame = document.getElementById('livePreviewFrame');
+                
+                const blob = new Blob([htmlCode], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                livePreviewFrame.src = url;
             }
+        }
+
+        function switchTab(tabName) {
+            // Exit live mode if switching tabs
+            if (isLiveMode && tabName !== 'editor') {
+                const editorTab = document.getElementById('editor');
+                const livePreviewPanel = document.getElementById('livePreviewPanel');
+                const liveButton = document.querySelector('.btn-warning');
+                
+                editorTab.classList.remove('live-mode');
+                livePreviewPanel.style.display = 'none';
+                if (liveButton) {
+                    liveButton.textContent = '👁️ Live Mode';
+                    liveButton.classList.remove('btn-warning');
+                    liveButton.classList.add('btn-primary');
+                }
+                isLiveMode = false;
+            }
+
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'saved') {
+                displaySavedFiles();
+            } else if (tabName === 'preview') {
+                updatePreview();
+            }
+        }
+
+        function updatePreview() {
+            const htmlCode = document.getElementById('htmlEditor').value;
+            const previewFrame = document.getElementById('previewFrame');
+            
+            const blob = new Blob([htmlCode], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            previewFrame.src = url;
+            
+            showToast('Preview updated! 🎉');
+        }
+
+        function saveFile() {
+            const htmlCode = document.getElementById('htmlEditor').value.trim();
+            if (!htmlCode) {
+                showToast('कोई code नहीं है save करने के लिए!', 'error');
+                return;
+            }
+
+            const fileName = prompt('File name enter करें:', currentFileName || `file_${Date.now()}.html`);
+            if (!fileName) return;
+
+            const fileData = {
+                name: fileName.endsWith('.html') ? fileName : fileName + '.html',
+                content: htmlCode,
+                timestamp: new Date().toLocaleString('hi-IN')
+            };
+
+            // Check if file already exists
+            const existingIndex = savedFiles.findIndex(f => f.name === fileData.name);
+            if (existingIndex !== -1) {
+                savedFiles[existingIndex] = fileData;
+            } else {
+                savedFiles.push(fileData);
+            }
+
+            localStorage.setItem('htmlTesterFiles', JSON.stringify(savedFiles));
+            currentFileName = fileData.name;
+            showToast(`File "${fileData.name}" saved! 💾`);
+        }
+
+        function displaySavedFiles() {
+            const container = document.getElementById('savedFilesList');
+            
+            if (savedFiles.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div>📁</div>
+                        <p>कोई saved files नहीं हैं</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = savedFiles.map((file, index) => `
+                <div class="file-item">
+                    <div>
+                        <div class="file-name">${file.name}</div>
+                        <small style="color: #6c757d;">${file.timestamp}</small>
+                    </div>
+                    <div class="file-actions">
+                        <button class="btn btn-primary btn-sm" onclick="loadFile(${index})">📂 Load</button>
+                        <button class="btn btn-success btn-sm" onclick="downloadFile(${index})">⬇️ Download</button>
+                        <button class="btn btn-warning btn-sm" onclick="deleteFile(${index})">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadFile(index) {
+            const file = savedFiles[index];
+            document.getElementById('htmlEditor').value = file.content;
+            currentFileName = file.name;
+            switchTab('editor');
+            document.querySelector('.tab').classList.add('active');
+            showToast(`File "${file.name}" loaded! 📂`);
+        }
+
+        function downloadFile(index) {
+            const file = savedFiles[index];
+            downloadHTML(file.content, file.name);
+        }
+
+        function downloadCurrentHTML() {
+            const htmlCode = document.getElementById('htmlEditor').value;
+            if (!htmlCode.trim()) {
+                showToast('कोई code नहीं है download करने के लिए!', 'error');
+                return;
+            }
+            const fileName = currentFileName || 'my_html_file.html';
+            downloadHTML(htmlCode, fileName);
+        }
+
+        function downloadHTML(content, fileName) {
+            // Create a text area with the content for user to copy
+            const textarea = document.createElement('textarea');
+            textarea.value = content;
+            textarea.style.position = 'fixed';
+            textarea.style.top = '50%';
+            textarea.style.left = '50%';
+            textarea.style.transform = 'translate(-50%, -50%)';
+            textarea.style.width = '90%';
+            textarea.style.height = '300px';
+            textarea.style.zIndex = '10000';
+            textarea.style.background = 'white';
+            textarea.style.border = '2px solid #4facfe';
+            textarea.style.borderRadius = '8px';
+            textarea.style.padding = '10px';
+            textarea.style.fontSize = '12px';
+            textarea.style.fontFamily = 'monospace';
+            
+            const overlay = document.createElement('div');
+            overlay.style.position = 'fixed';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.background = 'rgba(0,0,0,0.8)';
+            overlay.style.zIndex = '9999';
+            overlay.style.display = 'flex';
+            overlay.style.flexDirection = 'column';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.padding = '20px';
+            
+            const title = document.createElement('h3');
+            title.textContent = `${fileName} - Copy this code`;
+            title.style.color = 'white';
+            title.style.marginBottom = '10px';
+            title.style.textAlign = 'center';
+            
+            const instructions = document.createElement('p');
+            instructions.textContent = 'Select all text and copy it, then save as .html file';
+            instructions.style.color = 'white';
+            instructions.style.marginBottom = '10px';
+            instructions.style.textAlign = 'center';
+            instructions.style.fontSize = '14px';
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = '❌ Close';
+            closeBtn.style.marginTop = '10px';
+            closeBtn.style.padding = '10px 20px';
+            closeBtn.style.background = '#ff4757';
+            closeBtn.style.color = 'white';
+            closeBtn.style.border = 'none';
+            closeBtn.style.borderRadius = '5px';
+            closeBtn.style.cursor = 'pointer';
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.textContent = '📋 Copy to Clipboard';
+            copyBtn.style.marginTop = '10px';
+            copyBtn.style.marginRight = '10px';
+            copyBtn.style.padding = '10px 20px';
+            copyBtn.style.background = '#2ed573';
+            copyBtn.style.color = 'white';
+            copyBtn.style.border = 'none';
+            copyBtn.style.borderRadius = '5px';
+            copyBtn.style.cursor = 'pointer';
+            
+            const buttonContainer = document.createElement('div');
+            buttonContainer.appendChild(copyBtn);
+            buttonContainer.appendChild(closeBtn);
+            
+            overlay.appendChild(title);
+            overlay.appendChild(instructions);
+            overlay.appendChild(textarea);
+            overlay.appendChild(buttonContainer);
+            
+            document.body.appendChild(overlay);
+            textarea.select();
+            textarea.focus();
+            
+            copyBtn.onclick = () => {
+                textarea.select();
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(content).then(() => {
+                        showToast('Code copied to clipboard! 📋');
+                    });
+                } else {
+                    document.execCommand('copy');
+                    showToast('Code copied! 📋');
+                }
+            };
+            
+            closeBtn.onclick = () => {
+                document.body.removeChild(overlay);
+            };
+            
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            };
+        }
+
+        function deleteFile(index) {
+            if (confirm('क्या आप इस file को delete करना चाहते हैं?')) {
+                savedFiles.splice(index, 1);
+                localStorage.setItem('htmlTesterFiles', JSON.stringify(savedFiles));
+                displaySavedFiles();
+                showToast('File deleted! 🗑️');
+            }
+        }
+
+        function clearEditor() {
+            if (confirm('क्या आप editor को clear करना चाहते हैं?')) {
+                const editor = document.getElementById('htmlEditor');
+                editor.value = '';
+                currentFileName = '';
+                updateSyntaxHighlighting();
+                updateLivePreview();
+                showToast('Editor cleared! 🗑️');
+            }
+        }
+
+        function clearAllSaved() {
+            if (confirm('क्या आप सभी saved files को delete करना चाहते हैं?')) {
+                savedFiles = [];
+                localStorage.setItem('htmlTesterFiles', JSON.stringify(savedFiles));
+                displaySavedFiles();
+                showToast('All files deleted! 🗑️');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = type === 'error' ? '#dc3545' : '#28a745';
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize preview on load
+        window.onload = function() {
+            updatePreview();
+            updateSyntaxHighlighting();
+        };
+
+        // Auto-save functionality and syntax highlighting
+        let autoSaveTimeout;
+        const htmlEditor = document.getElementById('htmlEditor');
+        
+        htmlEditor.addEventListener('input', function() {
+            updateSyntaxHighlighting();
+            updateLivePreview();
+            
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                if (currentFileName) {
+                    const fileIndex = savedFiles.findIndex(f => f.name === currentFileName);
+                    if (fileIndex !== -1) {
+                        savedFiles[fileIndex].content = this.value;
+                        savedFiles[fileIndex].timestamp = new Date().toLocaleString('hi-IN');
+                        localStorage.setItem('htmlTesterFiles', JSON.stringify(savedFiles));
+                    }
+                }
+            }, 2000);
         });
 
-        removeBtn.addEventListener('click', () => {
-            htmlCodeTextarea.value = '';
+        htmlEditor.addEventListener('scroll', function() {
+            const highlighted = document.getElementById('highlightedCode');
+            highlighted.scrollTop = this.scrollTop;
+            highlighted.scrollLeft = this.scrollLeft;
         });
 
-        testBtn.addEventListener('click', testHtmlCode);
-
-        // Load history and last saved code on page load
-        window.addEventListener('load', () => {
-            loadHistory();
-            const lastCode = JSON.parse(localStorage.getItem('htmlHistory'));
-            if (lastCode && lastCode[0]) {
-                htmlCodeTextarea.value = lastCode[0].code;
+        htmlEditor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+                updateSyntaxHighlighting();
             }
         });
     </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96df3f6284464284',t:'MTc1NDk5NDEwNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
