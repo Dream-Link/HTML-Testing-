@@ -1,852 +1,300 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Live Tester</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            width: 100vw;
-        }
-
-        .editor-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .editor-header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .editor-title {
-            color: white;
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .toolbar-buttons {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .toolbar-btn {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .toolbar-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
-        }
-
-        .history-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .history-content {
-            background: #2c2c2c;
-            border-radius: 12px;
-            padding: 20px;
-            width: 80%;
-            max-width: 600px;
-            max-height: 70%;
-            overflow-y: auto;
-        }
-
-        .history-header {
-            color: white;
-            font-size: 18px;
-            margin-bottom: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .close-btn {
-            background: #ff5f57;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .history-item {
-            background: #1e1e1e;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #4a90e2;
-        }
-
-        .history-item-header {
-            color: #4a90e2;
-            font-size: 14px;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .history-item-code {
-            color: #d4d4d4;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            background: #0d1117;
-            padding: 10px;
-            border-radius: 4px;
-            max-height: 100px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-        }
-
-        .load-btn {
-            background: #28ca42;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        .code-editor-container {
-            flex: 1;
-            position: relative;
-            background: #0d1117;
-            border: 1px solid #30363d;
-        }
-
-        .code-editor {
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border: none;
-            outline: none;
-            padding: 20px;
-            font-family: 'Fira Code', 'Courier New', monospace;
-            font-size: 14px;
-            color: #c9d1d9;
-            caret-color: #fff;
-            resize: none;
-            line-height: 1.5;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 2;
-        }
-
-        .code-highlight {
-            width: 100%;
-            height: 100%;
-            padding: 20px;
-            font-family: 'Fira Code', 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 1;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            overflow: hidden;
-            pointer-events: none;
-            background: #0d1117;
-        }
-
-        /* Syntax highlighting colors */
-        .html-tag { color: #7ee787; }
-        .html-attribute { color: #79c0ff; }
-        .html-string { color: #a5d6ff; }
-        .html-comment { color: #8b949e; font-style: italic; }
-        .css-property { color: #79c0ff; }
-        .css-value { color: #a5d6ff; }
-        .css-selector { color: #ffa657; }
-        .js-keyword { color: #ff7b72; }
-        .js-string { color: #a5d6ff; }
-        .js-function { color: #d2a8ff; }
-        .js-number { color: #79c0ff; }
-        .html-doctype { color: #8b949e; }
-        .bracket { color: #f85149; }
-
-        .floating-preview {
-            position: fixed;
-            top: 50px;
-            right: 50px;
-            width: 320px;
-            height: 600px;
-            min-width: 200px;
-            min-height: 150px;
-            max-width: 90vw;
-            max-height: 90vh;
-            background: #2c2c2c;
-            border-radius: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            cursor: move;
-            z-index: 1000;
-            will-change: transform, width, height;
-        }
-
-
-
-        .preview-header {
-            background: #1a1a1a;
-            height: 40px;
-            border-radius: 25px 25px 0 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 20px;
-            border-bottom: 1px solid #333;
-            cursor: move;
-        }
-
-        .preview-title {
-            color: #ccc;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .resize-handle {
-            position: absolute;
-            background: transparent;
-            transition: background-color 0.15s ease;
-            z-index: 20;
-        }
-
-        .resize-handle.right {
-            top: 0;
-            right: -3px;
-            width: 6px;
-            height: 100%;
-            cursor: ew-resize;
-        }
-
-        .resize-handle.bottom {
-            bottom: -3px;
-            left: 0;
-            width: 100%;
-            height: 6px;
-            cursor: ns-resize;
-        }
-
-        .resize-handle.corner {
-            bottom: -3px;
-            right: -3px;
-            width: 12px;
-            height: 12px;
-            cursor: nw-resize;
-        }
-
-        .resize-handle:hover {
-            background: rgba(74, 144, 226, 0.5);
-        }
-
-        .floating-preview.resizing {
-            user-select: none;
-            pointer-events: auto;
-        }
-
-        .preview-content {
-            height: calc(100% - 40px);
-            background: white;
-            border-radius: 0 0 25px 25px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .preview-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: white;
-            display: block;
-            margin: 0;
-            padding: 0;
-        }
-
-        /* Mobile-like viewport for smaller sizes */
-        .floating-preview[data-size="mobile"] .preview-iframe {
-            transform: scale(1);
-            transform-origin: top left;
-        }
-
-        /* Desktop-like viewport for larger sizes */
-        .floating-preview[data-size="desktop"] .preview-iframe {
-            transform: scale(1);
-            transform-origin: top left;
-        }
-
-
-
-        /* Mobile responsive */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                gap: 10px;
-                padding: 10px;
-            }
-            
-            .floating-preview {
-                position: relative;
-                top: 0;
-                right: 0;
-                width: 100%;
-                height: 300px;
-                cursor: default;
-            }
-            
-            .drag-handle {
-                display: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="editor-section">
-            <div class="editor-header">
-                <div class="editor-title">HTML Code Editor</div>
-                <div class="toolbar-buttons">
-                    <button class="toolbar-btn" id="pasteBtn">📋 Paste</button>
-                    <button class="toolbar-btn" id="clearBtn">🗑️ Clear</button>
-                    <button class="toolbar-btn" id="saveBtn">💾 Save</button>
-                    <button class="toolbar-btn" id="historyBtn">📚 History</button>
-                    <button class="toolbar-btn" id="downloadBtn">⬇️ Download</button>
-                </div>
-            </div>
-            <div class="code-editor-container">
-                <div class="code-highlight" id="codeHighlight"></div>
-                <textarea class="code-editor" id="codeEditor" placeholder="Yahan apna HTML code likhiye..." spellcheck="false"><!DOCTYPE html>
-<html>
-<head>
-    <title>Test Page</title>
+    <title>Compact HTML Tester</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            padding: 20px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f2f5;
+        }
+        .main-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .editor-section, .history-section {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            gap: 10px;
+        }
+        button {
+            flex: 1;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
             color: white;
+            transition: background-color 0.2s ease;
         }
-        .card {
-            background: rgba(255,255,255,0.1);
-            padding: 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
+        #pasteBtn { background-color: #007bff; }
+        #removeBtn { background-color: #dc3545; }
+        #testBtn { background-color: #28a745; }
+        #pasteBtn:hover { background-color: #0056b3; }
+        #removeBtn:hover { background-color: #c82333; }
+        #testBtn:hover { background-color: #218838; }
+
+        .history-list {
+            list-style-type: none;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
+        .history-item {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e9ecef;
+        }
+        .history-item span {
+            cursor: pointer;
+            flex-grow: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #495057;
+        }
+        .history-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .history-buttons button {
+            flex: none;
+            padding: 8px 10px;
+            font-size: 12px;
+        }
+        .history-buttons .download-btn { background-color: #17a2b8; }
+        .history-buttons .edit-btn { background-color: #ffc107; }
+        .history-buttons .remove-btn { background-color: #dc3545; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>Hello World! 🌟</h1>
-        <p>Yah aapka live HTML preview hai!</p>
-        <button onclick="alert('Button clicked!')">Click Me</button>
-    </div>
-</body>
-</html></textarea>
+    <div class="main-container">
+        <h1>HTML Tester</h1>
+        
+        <div class="editor-section">
+            <textarea id="htmlCode" placeholder="Paste your HTML code here..."></textarea>
+            <div class="button-group">
+                <button id="pasteBtn">Paste</button>
+                <button id="removeBtn">Remove</button>
+                <button id="testBtn">Test</button>
             </div>
         </div>
-    </div>
-
-    <div class="floating-preview" id="floatingPreview">
-        <div class="preview-header" id="dragHandle">
-            <div class="preview-title">Live Preview</div>
-        </div>
-        <div class="preview-content">
-            <iframe class="preview-iframe" id="previewFrame"></iframe>
-        </div>
-        <div class="resize-handle right" id="resizeRight"></div>
-        <div class="resize-handle bottom" id="resizeBottom"></div>
-        <div class="resize-handle corner" id="resizeCorner"></div>
-    </div>
-
-    <!-- History Modal -->
-    <div class="history-modal" id="historyModal">
-        <div class="history-content">
-            <div class="history-header">
-                <span>Code History</span>
-                <button class="close-btn" id="closeHistoryBtn">✕</button>
-            </div>
-            <div id="historyList"></div>
+        
+        <div class="history-section">
+            <h2>Saved HTML History</h2>
+            <ul id="historyList" class="history-list">
+                </ul>
         </div>
     </div>
 
     <script>
-        const codeEditor = document.getElementById('codeEditor');
-        const codeHighlight = document.getElementById('codeHighlight');
-        const previewFrame = document.getElementById('previewFrame');
-        const floatingPreview = document.getElementById('floatingPreview');
-        const dragHandle = document.getElementById('dragHandle');
-        const resizeRight = document.getElementById('resizeRight');
-        const resizeBottom = document.getElementById('resizeBottom');
-        const resizeCorner = document.getElementById('resizeCorner');
-        
-        // Toolbar buttons
+        const htmlCodeTextarea = document.getElementById('htmlCode');
         const pasteBtn = document.getElementById('pasteBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const saveBtn = document.getElementById('saveBtn');
-        const historyBtn = document.getElementById('historyBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const historyModal = document.getElementById('historyModal');
-        const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+        const removeBtn = document.getElementById('removeBtn');
+        const testBtn = document.getElementById('testBtn');
         const historyList = document.getElementById('historyList');
 
-        let isDragging = false;
-        let isResizing = false;
-        let resizeType = '';
-        let currentX;
-        let currentY;
-        let initialX;
-        let initialY;
-        let xOffset = 0;
-        let yOffset = 0;
-        let autoSaveTimeout;
-        let initialWidth = 320;
-        let initialHeight = 600;
-
-        // Syntax highlighting function
-        function highlightCode(code) {
-            return code
-                // HTML Comments
-                .replace(/(&lt;!--[\s\S]*?--&gt;)/g, '<span class="html-comment">$1</span>')
-                // DOCTYPE
-                .replace(/(&lt;!DOCTYPE[^&gt;]*&gt;)/gi, '<span class="html-doctype">$1</span>')
-                // HTML Tags with attributes
-                .replace(/(&lt;\/?)([a-zA-Z][a-zA-Z0-9]*)((?:\s+[a-zA-Z-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s&gt;]+))?)*\s*)(&gt;)/g, 
-                    function(match, openBracket, tagName, attributes, closeBracket) {
-                        let result = '<span class="bracket">' + openBracket + '</span>';
-                        result += '<span class="html-tag">' + tagName + '</span>';
-                        
-                        // Highlight attributes
-                        if (attributes) {
-                            result += attributes.replace(/([a-zA-Z-]+)(=)("([^"]*)"|'([^']*)'|([^\s>]+))?/g, 
-                                '<span class="html-attribute">$1</span>$2<span class="html-string">$3</span>');
-                        }
-                        
-                        result += '<span class="bracket">' + closeBracket + '</span>';
-                        return result;
-                    })
-                // CSS in style tags
-                .replace(/(&lt;style[^&gt;]*&gt;)([\s\S]*?)(&lt;\/style&gt;)/gi, function(match, openTag, cssContent, closeTag) {
-                    let highlightedCSS = cssContent
-                        .replace(/([a-zA-Z-]+)\s*:/g, '<span class="css-property">$1</span>:')
-                        .replace(/:\s*([^;{}]+)/g, ': <span class="css-value">$1</span>')
-                        .replace(/([.#]?[a-zA-Z][a-zA-Z0-9-_]*)\s*{/g, '<span class="css-selector">$1</span> {');
-                    return openTag + highlightedCSS + closeTag;
-                })
-                // JavaScript in script tags
-                .replace(/(&lt;script[^&gt;]*&gt;)([\s\S]*?)(&lt;\/script&gt;)/gi, function(match, openTag, jsContent, closeTag) {
-                    let highlightedJS = jsContent
-                        .replace(/\b(function|var|let|const|if|else|for|while|return|true|false|null|undefined)\b/g, '<span class="js-keyword">$1</span>')
-                        .replace(/"([^"]*)"/g, '<span class="js-string">"$1"</span>')
-                        .replace(/'([^']*)'/g, '<span class="js-string">\'$1\'</span>')
-                        .replace(/\b([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/g, '<span class="js-function">$1</span>(')
-                        .replace(/\b(\d+\.?\d*)\b/g, '<span class="js-number">$1</span>');
-                    return openTag + highlightedJS + closeTag;
-                });
+        // Function to extract title from HTML
+        function getTitleFromHtml(html) {
+            const match = html.match(/<title>(.*?)<\/title>/i);
+            return match && match[1] ? match[1] : 'Untitled';
         }
 
-        function updateHighlight() {
-            const code = codeEditor.value;
-            const escapedCode = code
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;');
-            
-            codeHighlight.innerHTML = highlightCode(escapedCode);
-        }
-
-        // Sync scroll between editor and highlight
-        function syncScroll() {
-            codeHighlight.scrollTop = codeEditor.scrollTop;
-            codeHighlight.scrollLeft = codeEditor.scrollLeft;
-        }
-
-        // Live preview update
-        function updatePreview() {
-            const code = codeEditor.value;
-            const blob = new Blob([code], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            previewFrame.src = url;
-        }
-
-        // Resize functionality
-        function startResize(e, type) {
-            isResizing = true;
-            resizeType = type;
-            floatingPreview.classList.add('resizing');
-            
-            if (e.type === "touchstart") {
-                initialX = e.touches[0].clientX;
-                initialY = e.touches[0].clientY;
-            } else {
-                initialX = e.clientX;
-                initialY = e.clientY;
-            }
-            
-            const rect = floatingPreview.getBoundingClientRect();
-            initialWidth = rect.width;
-            initialHeight = rect.height;
-            
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        function doResize(e) {
-            if (!isResizing) return;
-            
-            let clientX, clientY;
-            if (e.type === "touchmove") {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            }
-            
-            const deltaX = clientX - initialX;
-            const deltaY = clientY - initialY;
-            
-            // Get viewport dimensions for constraints
-            const maxWidth = window.innerWidth * 0.9;
-            const maxHeight = window.innerHeight * 0.9;
-            
-            if (resizeType === 'right' || resizeType === 'corner') {
-                const newWidth = Math.min(maxWidth, Math.max(200, initialWidth + deltaX));
-                floatingPreview.style.width = newWidth + 'px';
-            }
-            
-            if (resizeType === 'bottom' || resizeType === 'corner') {
-                const newHeight = Math.min(maxHeight, Math.max(150, initialHeight + deltaY));
-                floatingPreview.style.height = newHeight + 'px';
-            }
-            
-            // Update viewport mode based on size
-            updateViewportMode();
-            
-            e.preventDefault();
-        }
-
-        function updateViewportMode() {
-            const rect = floatingPreview.getBoundingClientRect();
-            const width = rect.width;
-            
-            // Mobile-like experience for smaller widths
-            if (width <= 400) {
-                floatingPreview.setAttribute('data-size', 'mobile');
-                floatingPreview.style.borderRadius = '25px';
-            } else {
-                // Desktop-like experience for larger widths
-                floatingPreview.setAttribute('data-size', 'desktop');
-                floatingPreview.style.borderRadius = '12px';
-            }
-            
-            // Update header border radius accordingly
-            const header = floatingPreview.querySelector('.preview-header');
-            const content = floatingPreview.querySelector('.preview-content');
-            
-            if (width <= 400) {
-                header.style.borderRadius = '25px 25px 0 0';
-                content.style.borderRadius = '0 0 25px 25px';
-            } else {
-                header.style.borderRadius = '12px 12px 0 0';
-                content.style.borderRadius = '0 0 12px 12px';
-            }
-        }
-
-        function stopResize() {
-            isResizing = false;
-            resizeType = '';
-            floatingPreview.classList.remove('resizing');
-        }
-
-        // Drag functionality
-        function dragStart(e) {
-            if (isResizing) return;
-            
-            if (e.type === "touchstart") {
-                initialX = e.touches[0].clientX - xOffset;
-                initialY = e.touches[0].clientY - yOffset;
-            } else {
-                initialX = e.clientX - xOffset;
-                initialY = e.clientY - yOffset;
-            }
-
-            if (e.target === dragHandle) {
-                isDragging = true;
-                floatingPreview.style.cursor = 'grabbing';
-                e.preventDefault();
-            }
-        }
-
-        function dragEnd(e) {
-            if (isDragging) {
-                initialX = currentX;
-                initialY = currentY;
-                floatingPreview.style.cursor = 'move';
-            }
-            isDragging = false;
-            stopResize();
-        }
-
-        function drag(e) {
-            if (isDragging && !isResizing) {
-                e.preventDefault();
-                
-                if (e.type === "touchmove") {
-                    currentX = e.touches[0].clientX - initialX;
-                    currentY = e.touches[0].clientY - initialY;
-                } else {
-                    currentX = e.clientX - initialX;
-                    currentY = e.clientY - initialY;
-                }
-
-                // Constrain to viewport
-                const rect = floatingPreview.getBoundingClientRect();
-                const maxX = window.innerWidth - rect.width;
-                const maxY = window.innerHeight - rect.height;
-                
-                currentX = Math.min(maxX, Math.max(-rect.width + 100, currentX));
-                currentY = Math.min(maxY, Math.max(0, currentY));
-
-                xOffset = currentX;
-                yOffset = currentY;
-
-                setTranslate(currentX, currentY, floatingPreview);
-            } else if (isResizing) {
-                doResize(e);
-            }
-        }
-
-        function setTranslate(xPos, yPos, el) {
-            el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-        }
-
-        // Event listeners for dragging
-        dragHandle.addEventListener('mousedown', dragStart);
-        document.addEventListener('mousemove', drag);
-        document.addEventListener('mouseup', dragEnd);
-
-        dragHandle.addEventListener('touchstart', dragStart);
-        document.addEventListener('touchmove', drag);
-        document.addEventListener('touchend', dragEnd);
-
-        // Event listeners for resizing
-        resizeRight.addEventListener('mousedown', (e) => startResize(e, 'right'));
-        resizeBottom.addEventListener('mousedown', (e) => startResize(e, 'bottom'));
-        resizeCorner.addEventListener('mousedown', (e) => startResize(e, 'corner'));
-
-        resizeRight.addEventListener('touchstart', (e) => startResize(e, 'right'));
-        resizeBottom.addEventListener('touchstart', (e) => startResize(e, 'bottom'));
-        resizeCorner.addEventListener('touchstart', (e) => startResize(e, 'corner'));
-
-        // Auto-save functionality
-        function autoSave() {
-            const code = codeEditor.value;
-            localStorage.setItem('htmlTester_currentCode', code);
-        }
-
-        function loadSavedCode() {
-            const savedCode = localStorage.getItem('htmlTester_currentCode');
-            if (savedCode) {
-                codeEditor.value = savedCode;
-            }
-        }
-
-        // History management
-        function saveToHistory() {
-            const code = codeEditor.value.trim();
-            if (!code) return;
-
-            let history = JSON.parse(localStorage.getItem('htmlTester_history') || '[]');
-            const timestamp = new Date().toLocaleString('hi-IN');
-            const newEntry = {
-                id: Date.now(),
-                code: code,
-                timestamp: timestamp,
-                preview: code.substring(0, 100) + (code.length > 100 ? '...' : '')
-            };
-
-            // Remove duplicate if exists
-            history = history.filter(item => item.code !== code);
-            
-            // Add to beginning
-            history.unshift(newEntry);
-            
-            // Keep only last 20 entries
-            if (history.length > 20) {
-                history = history.slice(0, 20);
-            }
-
-            localStorage.setItem('htmlTester_history', JSON.stringify(history));
-        }
-
+        // Function to load history from local storage
         function loadHistory() {
-            const history = JSON.parse(localStorage.getItem('htmlTester_history') || '[]');
+            const savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
             historyList.innerHTML = '';
+            savedHistory.forEach((item, index) => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('history-item');
+                
+                const codeSpan = document.createElement('span');
+                codeSpan.textContent = item.title;
+                
+                const buttonContainer = document.createElement('div');
+                buttonContainer.classList.add('history-buttons');
 
-            if (history.length === 0) {
-                historyList.innerHTML = '<div style="color: #666; text-align: center; padding: 20px;">Koi history nahi hai</div>';
-                return;
-            }
+                const editBtn = document.createElement('button');
+                editBtn.classList.add('edit-btn');
+                editBtn.innerHTML = '<i class="fas fa-edit"></i>';
+                editBtn.title = 'Edit HTML';
+                editBtn.onclick = () => {
+                    htmlCodeTextarea.value = item.code;
+                    // Scroll to the top of the page to see the editor
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
 
-            history.forEach(item => {
-                const historyItem = document.createElement('div');
-                historyItem.className = 'history-item';
-                historyItem.innerHTML = `
-                    <div class="history-item-header">
-                        <span>${item.timestamp}</span>
-                        <button class="load-btn" onclick="loadFromHistory(${item.id})">Load</button>
-                    </div>
-                    <div class="history-item-code">${item.preview}</div>
-                `;
-                historyList.appendChild(historyItem);
+                const downloadBtn = document.createElement('button');
+                downloadBtn.classList.add('download-btn');
+                downloadBtn.innerHTML = '<i class="fas fa-download"></i>';
+                downloadBtn.title = 'Download as index.html';
+                downloadBtn.onclick = () => downloadCode(item.code);
+
+                const removeBtn = document.createElement('button');
+                removeBtn.classList.add('remove-btn');
+                removeBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
+                removeBtn.title = 'Remove from history';
+                removeBtn.onclick = () => {
+                    removeCode(index);
+                };
+
+                buttonContainer.appendChild(editBtn);
+                buttonContainer.appendChild(downloadBtn);
+                buttonContainer.appendChild(removeBtn);
+
+                listItem.appendChild(codeSpan);
+                listItem.appendChild(buttonContainer);
+                historyList.appendChild(listItem);
             });
         }
 
-        function loadFromHistory(id) {
-            const history = JSON.parse(localStorage.getItem('htmlTester_history') || '[]');
-            const item = history.find(h => h.id === id);
-            if (item) {
-                codeEditor.value = item.code;
-                updatePreview();
-                autoSave();
-                historyModal.style.display = 'none';
+        // Function to remove a code entry from history
+        function removeCode(indexToRemove) {
+            let savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
+            savedHistory.splice(indexToRemove, 1);
+            localStorage.setItem('htmlHistory', JSON.stringify(savedHistory));
+            loadHistory();
+        }
+
+        // Function to save code to local storage
+        function saveCode(html) {
+            const savedHistory = JSON.parse(localStorage.getItem('htmlHistory')) || [];
+            const title = getTitleFromHtml(html);
+            savedHistory.unshift({ code: html, title: title }); 
+            localStorage.setItem('htmlHistory', JSON.stringify(savedHistory.slice(0, 10)));
+            loadHistory();
+        }
+        
+        // Function to download the code
+        function downloadCode(html) {
+            const a = document.createElement('a');
+            const file = new Blob([html], { type: 'text/html' });
+            a.href = URL.createObjectURL(file);
+            a.download = 'index.html';
+            a.click();
+        }
+
+        // Function to handle the test button logic
+        function testHtmlCode() {
+            const code = htmlCodeTextarea.value;
+            if (code) {
+                saveCode(code); // Save code to history
+                
+                const newWindow = window.open('', '_blank', 'width=800,height=600');
+                if (newWindow) {
+                    newWindow.document.open();
+                    newWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>Preview</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    margin: 0;
+                                }
+                                #toggleViewBtn {
+                                    position: fixed;
+                                    bottom: 20px;
+                                    right: 20px;
+                                    padding: 10px 15px;
+                                    border: none;
+                                    border-radius: 5px;
+                                    background-color: #007bff;
+                                    color: white;
+                                    cursor: pointer;
+                                    z-index: 1000;
+                                }
+                                body.desktop-view {
+                                    width: 1024px;
+                                    margin: 0 auto;
+                                    border: 1px solid #ccc;
+                                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${code}
+                            <button id="toggleViewBtn">Switch to Desktop View</button>
+                            <script>
+                                const toggleViewBtn = document.getElementById('toggleViewBtn');
+                                toggleViewBtn.addEventListener('click', () => {
+                                    document.body.classList.toggle('desktop-view');
+                                    if (document.body.classList.contains('desktop-view')) {
+                                        toggleViewBtn.textContent = 'Switch to Mobile View';
+                                    } else {
+                                        toggleViewBtn.textContent = 'Switch to Desktop View';
+                                    }
+                                });
+                            <\/script>
+                        </body>
+                        </html>
+                    `);
+                    newWindow.document.close();
+                }
             }
         }
 
-        // Make loadFromHistory global
-        window.loadFromHistory = loadFromHistory;
-
-        // Toolbar button events
+        // Event Listeners
         pasteBtn.addEventListener('click', async () => {
             try {
                 const text = await navigator.clipboard.readText();
-                codeEditor.value = text;
-                updatePreview();
-                autoSave();
+                htmlCodeTextarea.value = text;
             } catch (err) {
-                alert('Clipboard access nahi mil saka. Manually paste kariye (Ctrl+V)');
+                console.error('Failed to read clipboard contents: ', err);
             }
         });
 
-        clearBtn.addEventListener('click', () => {
-            if (confirm('Kya aap code clear karna chahte hain?')) {
-                codeEditor.value = '';
-                updatePreview();
-                autoSave();
-            }
+        removeBtn.addEventListener('click', () => {
+            htmlCodeTextarea.value = '';
         });
 
-        saveBtn.addEventListener('click', () => {
-            saveToHistory();
-            alert('Code history me save ho gaya!');
-        });
+        testBtn.addEventListener('click', testHtmlCode);
 
-        historyBtn.addEventListener('click', () => {
+        // Load history and last saved code on page load
+        window.addEventListener('load', () => {
             loadHistory();
-            historyModal.style.display = 'flex';
-        });
-
-        downloadBtn.addEventListener('click', () => {
-            const code = codeEditor.value;
-            const blob = new Blob([code], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `html-code-${new Date().getTime()}.html`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        });
-
-        closeHistoryBtn.addEventListener('click', () => {
-            historyModal.style.display = 'none';
-        });
-
-        // Close modal on outside click
-        historyModal.addEventListener('click', (e) => {
-            if (e.target === historyModal) {
-                historyModal.style.display = 'none';
+            const lastCode = JSON.parse(localStorage.getItem('htmlHistory'));
+            if (lastCode && lastCode[0]) {
+                htmlCodeTextarea.value = lastCode[0].code;
             }
-        });
-
-        // Debounced functions for better performance
-        let highlightTimeout;
-        let previewTimeout;
-
-        // Live update on code change with auto-save
-        codeEditor.addEventListener('input', () => {
-            // Immediate preview update for small changes
-            clearTimeout(previewTimeout);
-            previewTimeout = setTimeout(updatePreview, 100);
-            
-            // Debounced highlighting for better performance
-            clearTimeout(highlightTimeout);
-            highlightTimeout = setTimeout(updateHighlight, 150);
-            
-            // Clear previous timeout
-            clearTimeout(autoSaveTimeout);
-            
-            // Set new timeout for auto-save (1 second delay)
-            autoSaveTimeout = setTimeout(autoSave, 1000);
-        });
-
-        // Sync scroll
-        codeEditor.addEventListener('scroll', syncScroll);
-
-        // Initial setup
-        loadSavedCode();
-        updatePreview();
-        updateHighlight();
-        updateViewportMode();
-
-        // Prevent text selection while dragging
-        dragHandle.addEventListener('selectstart', (e) => {
-            e.preventDefault();
         });
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96e1661fc4c931ed',t:'MTc1NTAxNjY2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
